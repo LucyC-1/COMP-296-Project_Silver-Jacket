@@ -15,7 +15,7 @@ namespace SilverJacket
             this.AppliesTint = true;
             this.TintColor = new Color(3, 110, 210);
             this.effectIdentifier = Module.MOD_PREFIX + "_wet";
-            this.duration = 10;
+            this.duration = 15;
             this.OverheadVFX = SpriteBuilder.SpriteFromResource("Mod/Resources/Status Effects/wet_effect");
             this.PlaysVFXOnActor = true;
         }
@@ -29,7 +29,23 @@ namespace SilverJacket
             // Check for Oiled Coated effect
             if(actor.GetEffect(Module.MOD_PREFIX + "_oilcoated") != null)
             {
-                // Apply OilSlick effect
+                actor.ApplyEffect(new OilSlickEffect { });
+                actor.ApplyEffect(new WetEffectTempImmunity { });
+            }
+            if(actor.GetEffect("freeze") != null)
+            {
+                if(actor.FreezeAmount > 0)
+                {
+                    if (actor.healthHaver.IsBoss)
+                    {
+                        actor.FreezeAmount = 75;
+                    }
+                    else
+                    {
+                        actor.FreezeAmount = 101;
+                    }
+                    actor.ApplyEffect(new WetEffectTempImmunity { });
+                }
             }
             base.EffectTick(actor, effectData);
         }

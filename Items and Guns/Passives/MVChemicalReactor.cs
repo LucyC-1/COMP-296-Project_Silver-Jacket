@@ -69,12 +69,50 @@ namespace SilverJacket
             }
             private void OnDamaged(float resultValue, float maxValue, CoreDamageTypes damageTypes, DamageCategory damageCategory, Vector2 damageDirection)
             {
-                if ((damageTypes & CoreDamageTypes.Water) == CoreDamageTypes.Water && actor.GetEffect(Module.MOD_PREFIX + "_oilcoated_immunity") == null) 
+                if ((damageTypes & CoreDamageTypes.Water) == CoreDamageTypes.Water && actor.GetEffect(Module.MOD_PREFIX + "_wet_immunity") == null) 
                 {
                     actor.ApplyEffect(new WetEffect { });
                 }
             }
+            private void Update()
+            {
+                elapsed += Time.deltaTime;
+                if (elapsed >= .1f) // this causes the game to only run the check for goops every .1 seconds, reducing lag
+                {
+                    elapsed = 0;
+                    for (int i = 0; i < StaticReferenceManager.AllGoops.Count; i++)
+                    {
+                        // if the enemy's current position is in a goop
+                        if (StaticReferenceManager.AllGoops[i].IsPositionInGoop((Vector2)actor.transform.position) == true)
+                        {
+                            // check if the current goop at the position is either water or oil
+                            DeadlyDeadlyGoopManager goopM = StaticReferenceManager.AllGoops[i];
+                            if(goopM.goopDefinition == Library.WaterGoop)
+                            {
+                                //check for immunity
+                                if (actor.GetEffect(Module.MOD_PREFIX + "_wet_immunity") == null)
+                                {
+                                    
+                                    actor.ApplyEffect(new WetEffect { });
+                                }
+                                
+                            }
+                            else if (goopM.goopDefinition == Library.OilDef)
+                            {
+                                //check for immunity
+                                if (actor.GetEffect(Module.MOD_PREFIX + "_oilcoated_immunity") == null)
+                                {
+                                    actor.ApplyEffect(new OilCoatedEffect { });
+                                }
+                    
+                            }
 
+                        }
+                    }
+                    
+                }
+            }
+            private float elapsed = 0;
             private AIActor actor;
         }
     }

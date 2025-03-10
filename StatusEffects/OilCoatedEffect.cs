@@ -15,7 +15,7 @@ namespace SilverJacket
             this.AppliesTint = true;
             this.TintColor = new Color(26, 1, 14);
             this.effectIdentifier = Module.MOD_PREFIX + "_oilcoated";
-            this.duration = 10;
+            this.duration = 15;
             this.OverheadVFX = SpriteBuilder.SpriteFromResource("Mod/Resources/Status Effects/oil_coated_effect");
             this.PlaysVFXOnActor = true;
         }
