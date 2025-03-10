@@ -27,6 +27,7 @@ namespace SilverJacket
 
         public void GMStart(GameManager g)
         {
+            Library.DefineGoops();
             //where items and guns get initialised
             //ExamplePassive.Init();
             Log($"{NAME} v{VERSION} started successfully.", TEXT_COLOR);
