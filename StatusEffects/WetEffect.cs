@@ -30,7 +30,6 @@ namespace SilverJacket
             if(actor.GetEffect(Module.MOD_PREFIX + "_oilcoated") != null)
             {
                 actor.ApplyEffect(new OilSlickEffect { });
-                actor.ApplyEffect(new WetEffectTempImmunity { });
             }
             if(actor.GetEffect("freeze") != null)
             {
@@ -45,6 +44,39 @@ namespace SilverJacket
                         actor.FreezeAmount = 101;
                     }
                     actor.ApplyEffect(new WetEffectTempImmunity { });
+                }
+            }
+            if(actor.GetEffect("fire") != null)
+            {
+                if(!(actor.GetEffect("fire") as GameActorFireEffect).IsGreenFire)
+                {
+                    actor.RemoveEffect("fire");
+                    actor.ApplyEffect(new WetEffectTempImmunity { });
+                    SteamCloud.CreateSteamCloud(actor.transform.position);
+                    List<AIActor> targets = new List<AIActor>();
+                    Action<AIActor, float> InitialTargetting = delegate (AIActor actor, float dist)
+                    {
+                        targets.Add(actor);
+                    };
+                    GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 120, InitialTargetting);
+                    foreach(AIActor a in targets)
+                    {
+                        GameActorSpeedEffect eff = new GameActorSpeedEffect
+                        {
+                            AffectsEnemies = Library.TripleCrossbowEffect.AffectsEnemies,
+                            AffectsPlayers = false,
+                            AppliesDeathTint = false,
+                            AppliesOutlineTint = false,
+                            AppliesTint = false,
+                            effectIdentifier = Library.TripleCrossbowEffect.effectIdentifier,
+                            resistanceType = Library.TripleCrossbowEffect.resistanceType,
+                            SpeedMultiplier = Library.TripleCrossbowEffect.SpeedMultiplier,
+                            OverheadVFX = Library.TripleCrossbowEffect.OverheadVFX,
+                            PlaysVFXOnActor = true,
+                            duration = 15,                            
+                        };
+                        a.ApplyEffect(eff);
+                    }
                 }
             }
             base.EffectTick(actor, effectData);

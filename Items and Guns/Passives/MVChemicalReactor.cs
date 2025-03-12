@@ -23,16 +23,19 @@ namespace SilverJacket
             ItemBuilder.AddSpriteToObject(itemName, resourceName, obj);
 
             string shortDesc = "Greg-ified!";
-            string longDesc = "Adds reactions between various status effects;\n" +
-                "";
+            string longDesc = "Adds reactions between various status effects:\n\n" +
+                "Enemies standing in water or damaged by water attacks will give them the wet effect.\n" +
+                "Enemies standing in oil will get the oil coated effect.\n\n" +
+                "- Oil Coated + Wet = Oilslick; Oilslick increases knockback taken and causes the enemy to leave a trail of oil. Gives a temporary immunity to Wet.\n" +
+                "- Wet + Freeze = Crystal Nucleation; Crystal Nucleation causes non-boss enemies to become instantly frozen. Gives a temporary immunity to Wet.\n" +
+                "- Wet + Fire = Steam Cloud; Steam Cloud slows nearby enemies and extinguishes the enemy. Gives a temporary immunity to Wet.\n" +
+                "- Freeze + Fire = Steam Explosion; Ceates an explosion. Removes extinguishes and thaws the enemy.\n" +
+                "- Fire + Poison = Toxic Fumes; Toxic Fumes poisons all enemies nearby.";
 
             //Adds the item to the gungeon item list, the ammonomicon, the loot table, etc.
             //Do this after ItemBuilder.AddSpriteToObject!
             ItemBuilder.SetupItem(item, shortDesc, longDesc, Module.MOD_PREFIX);
-
-            //Adds the actual passive effect to the item
-            ItemBuilder.AddPassiveStatModifier(item, PlayerStats.StatType.Health, 1, StatModifier.ModifyMethod.ADDITIVE);
-            ItemBuilder.AddPassiveStatModifier(item, PlayerStats.StatType.Coolness, 1);
+            
 
             //Set the rarity of the item
             item.quality = PickupObject.ItemQuality.C;
@@ -77,6 +80,7 @@ namespace SilverJacket
             private void Update()
             {
                 elapsed += Time.deltaTime;
+                CheckStatuses();
                 if (elapsed >= .1f) // this causes the game to only run the check for goops every .1 seconds, reducing lag
                 {
                     elapsed = 0;
@@ -110,6 +114,31 @@ namespace SilverJacket
                         }
                     }
                     
+                }
+            }
+            private void CheckStatuses()
+            {
+                if(actor.m_activeEffects.Count == 0)
+                {
+                    return;
+                }
+                if(actor.GetEffect("fire") != null)
+                {
+                    if(actor.GetEffect("poison") != null)
+                    {
+                        if (actor.GetEffect(Module.MOD_PREFIX + "_poison_fume_immunity") == null)
+                        {
+                            actor.ApplyEffect(new PoisonFumeTempImmunity { });
+                        }
+                    }
+                    if(actor.GetEffect("freeze") != null)
+                    {
+                        ExplosionData explosionData = new ExplosionData { };
+                        explosionData.CopyFrom(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultExplosionData);
+                        explosionData.damageToPlayer = 0;
+                        actor.RemoveEffect("fire");
+                        actor.RemoveEffect("freeze");
+                    }
                 }
             }
             private float elapsed = 0;

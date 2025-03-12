@@ -50,7 +50,7 @@ namespace SilverJacket
 
         }
         static Gun TripleCrossbow = ETGMod.Databases.Items["triple_crossbow"] as Gun;
-        static GameActorSpeedEffect TripleCrossbowEffect = TripleCrossbow.DefaultModule.projectiles[0].speedEffect;
+        public static GameActorSpeedEffect TripleCrossbowEffect = TripleCrossbow.DefaultModule.projectiles[0].speedEffect;
         public static GameActorSpeedEffect FriendlyWebGoopSpeedMod = new GameActorSpeedEffect
         {
             duration = 1,
@@ -92,5 +92,11 @@ namespace SilverJacket
         public static GoopDefinition CharmGoopDef = PickupObjectDatabase.GetById(310)?.GetComponent<WingsItem>()?.RollGoop;
         public static GoopDefinition GreenFireDef = (PickupObjectDatabase.GetById(698) as Gun).DefaultModule.projectiles[0].GetComponent<GoopModifier>().goopDefinition;
         public static GoopDefinition CheeseDef = (PickupObjectDatabase.GetById(808) as Gun).DefaultModule.projectiles[0].GetComponent<GoopModifier>().goopDefinition;
+
+        public static void InitVFX()
+        {
+            SteamCloud.Init();
+        }
     }
+    
 }

@@ -15,6 +15,7 @@ namespace SilverJacket
             this.effectIdentifier = Module.MOD_PREFIX + "_oilslick";
             this.duration = 5;
             this.OverheadVFX = SpriteBuilder.SpriteFromResource("Mod/Resources/Status Effects/oilslick_effect");
+            
         }
         public override void OnEffectApplied(GameActor actor, RuntimeGameActorEffectData effectData, float partialAmount = 1)
         {
