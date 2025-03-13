@@ -9,11 +9,12 @@ namespace SilverJacket
 {
     class PoisonFumeTempImmunity : GameActorEffect
     {
+        public static string ID = Module.MOD_PREFIX + "_poison_fume_immunity";
         private void Start()
         {
             this.AppliesTint = false;
-            this.effectIdentifier = Module.MOD_PREFIX + "_poison_fume_immunity";
-            this.duration = 30;
+            this.effectIdentifier = ID;
+            this.duration = 15;
         }
     }
 }

@@ -10,26 +10,26 @@ namespace SilverJacket
 {
     public class WetEffect : GameActorEffect
     {
+        public static string ID = Module.MOD_PREFIX + "_wet";
         private void Start()
         {
             this.AppliesTint = true;
-            this.TintColor = new Color(3, 110, 210);
-            this.effectIdentifier = Module.MOD_PREFIX + "_wet";
+            
+            this.effectIdentifier = ID;
             this.duration = 15;
-            this.OverheadVFX = SpriteBuilder.SpriteFromResource("Mod/Resources/Status Effects/wet_effect");
+            //this.OverheadVFX = SpriteBuilder.SpriteFromResource("SilverJacket/Resources/StatusEffects/wet_effect");
             this.PlaysVFXOnActor = true;
         }
         public override void OnEffectApplied(GameActor actor, RuntimeGameActorEffectData effectData, float partialAmount = 1)
-        {
-            ApplyTint(actor);
+        {            
             base.OnEffectApplied(actor, effectData, partialAmount);
         }
         public override void EffectTick(GameActor actor, RuntimeGameActorEffectData effectData)
         {
             // Check for Oiled Coated effect
-            if(actor.GetEffect(Module.MOD_PREFIX + "_oilcoated") != null)
+            if(actor.GetEffect(OilCoatedEffect.ID) != null)
             {
-                actor.ApplyEffect(new OilSlickEffect { });
+                actor.ApplyEffect(new OilSlickEffect { effectIdentifier = OilSlickEffect.ID, duration = 5, OverheadVFX = SpriteBuilder.SpriteFromResource("SilverJacket/Resources/StatusEffects/oilslick_effect") });
             }
             if(actor.GetEffect("freeze") != null)
             {
@@ -43,7 +43,7 @@ namespace SilverJacket
                     {
                         actor.FreezeAmount = 101;
                     }
-                    actor.ApplyEffect(new WetEffectTempImmunity { });
+                    actor.ApplyEffect(new WetEffectTempImmunity { effectIdentifier = WetEffectTempImmunity.ID, duration = 15 });
                 }
             }
             if(actor.GetEffect("fire") != null)
@@ -51,14 +51,14 @@ namespace SilverJacket
                 if(!(actor.GetEffect("fire") as GameActorFireEffect).IsGreenFire)
                 {
                     actor.RemoveEffect("fire");
-                    actor.ApplyEffect(new WetEffectTempImmunity { });
+                    actor.ApplyEffect(new WetEffectTempImmunity { effectIdentifier = WetEffectTempImmunity.ID, duration = 15 });
                     SteamCloud.CreateSteamCloud(actor.transform.position);
                     List<AIActor> targets = new List<AIActor>();
                     Action<AIActor, float> InitialTargetting = delegate (AIActor actor, float dist)
                     {
                         targets.Add(actor);
                     };
-                    GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 120, InitialTargetting);
+                    GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 3, InitialTargetting);
                     foreach(AIActor a in targets)
                     {
                         GameActorSpeedEffect eff = new GameActorSpeedEffect
@@ -72,7 +72,7 @@ namespace SilverJacket
                             resistanceType = Library.TripleCrossbowEffect.resistanceType,
                             SpeedMultiplier = Library.TripleCrossbowEffect.SpeedMultiplier,
                             OverheadVFX = Library.TripleCrossbowEffect.OverheadVFX,
-                            PlaysVFXOnActor = true,
+                            
                             duration = 15,                            
                         };
                         a.ApplyEffect(eff);
@@ -85,15 +85,16 @@ namespace SilverJacket
 
     public class WetEffectTempImmunity : GameActorEffect
     {
+        public static string ID = Module.MOD_PREFIX + "_wet_immunity";
         private void Start()
         {
             this.AppliesTint = false;
-            this.effectIdentifier = Module.MOD_PREFIX + "_wet_immunity";
-            this.duration = 30;
+            this.effectIdentifier = ID;
+            this.duration = 15;
         }
         public override void OnEffectApplied(GameActor actor, RuntimeGameActorEffectData effectData, float partialAmount = 1)
         {
-            actor.RemoveEffect(Module.MOD_PREFIX + "_wet");
+            actor.RemoveEffect(WetEffect.ID);
             base.OnEffectApplied(actor, effectData, partialAmount);
         }
     }

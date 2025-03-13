@@ -31,6 +31,7 @@ namespace SilverJacket
             Library.InitVFX();
             //where items and guns get initialised
             //ExamplePassive.Init();
+            MVChemicalReactor.Init();
             Log($"{NAME} v{VERSION} started successfully.", TEXT_COLOR);
         }
 

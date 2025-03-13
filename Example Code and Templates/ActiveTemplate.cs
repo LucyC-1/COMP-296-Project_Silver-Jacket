@@ -13,7 +13,7 @@ namespace SilverJacket
         {
             string itemName = " ";
 
-            string resourceName = "[Resource file path]";
+            string resourceName = "SilverJacket/Resources/Actives/...";
 
             GameObject obj = new GameObject(itemName);
 

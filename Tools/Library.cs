@@ -96,6 +96,8 @@ namespace SilverJacket
         public static void InitVFX()
         {
             SteamCloud.Init();
+            PoisonRing.Init();         
+            
         }
     }
     

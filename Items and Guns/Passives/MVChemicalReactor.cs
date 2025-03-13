@@ -14,7 +14,7 @@ namespace SilverJacket
         {
             string itemName = "MV Chemical Reactor";
 
-            string resourceName = "Mod/Resources/Passives/mv_chemical_reactor";
+            string resourceName = "SilverJacket/Resources/Passives/mv_chemical_reactor"; 
 
             GameObject obj = new GameObject(itemName);
 
@@ -29,7 +29,7 @@ namespace SilverJacket
                 "- Oil Coated + Wet = Oilslick; Oilslick increases knockback taken and causes the enemy to leave a trail of oil. Gives a temporary immunity to Wet.\n" +
                 "- Wet + Freeze = Crystal Nucleation; Crystal Nucleation causes non-boss enemies to become instantly frozen. Gives a temporary immunity to Wet.\n" +
                 "- Wet + Fire = Steam Cloud; Steam Cloud slows nearby enemies and extinguishes the enemy. Gives a temporary immunity to Wet.\n" +
-                "- Freeze + Fire = Steam Explosion; Ceates an explosion. Removes extinguishes and thaws the enemy.\n" +
+                "- Freeze + Fire = Steam Explosion; Ceates an explosion on enemies that are 50% frozen. Removes extinguishes and thaws the enemy.\n" +
                 "- Fire + Poison = Toxic Fumes; Toxic Fumes poisons all enemies nearby.";
 
             //Adds the item to the gungeon item list, the ammonomicon, the loot table, etc.
@@ -72,9 +72,18 @@ namespace SilverJacket
             }
             private void OnDamaged(float resultValue, float maxValue, CoreDamageTypes damageTypes, DamageCategory damageCategory, Vector2 damageDirection)
             {
-                if ((damageTypes & CoreDamageTypes.Water) == CoreDamageTypes.Water && actor.GetEffect(Module.MOD_PREFIX + "_wet_immunity") == null) 
+                if ((damageTypes & CoreDamageTypes.Water) == CoreDamageTypes.Water && actor.GetEffect(WetEffectTempImmunity.ID) == null) 
                 {
-                    actor.ApplyEffect(new WetEffect { });
+                    WetEffect wet = new WetEffect
+                    {
+                        AppliesTint = true,
+                        TintColor = new Color(3 / 100, 110 / 100, 210 / 100),
+                        effectIdentifier = WetEffect.ID,
+                        duration = 15,
+                        OverheadVFX = SpriteBuilder.SpriteFromResource("SilverJacket/Resources/StatusEffects/wet_effect"),
+                        
+                    };
+                    actor.ApplyEffect(wet);
                 }
             }
             private void Update()
@@ -94,19 +103,36 @@ namespace SilverJacket
                             if(goopM.goopDefinition == Library.WaterGoop)
                             {
                                 //check for immunity
-                                if (actor.GetEffect(Module.MOD_PREFIX + "_wet_immunity") == null)
+                                if (actor.GetEffect(WetEffectTempImmunity.ID) == null)
                                 {
-                                    
-                                    actor.ApplyEffect(new WetEffect { });
+                                    WetEffect wet = new WetEffect
+                                    {
+                                        AppliesTint = true,
+                                        TintColor = new Color(3 / 100, 110 / 100, 210 / 100),
+                                        effectIdentifier = WetEffect.ID,
+                                        duration = 15,
+                                        OverheadVFX = SpriteBuilder.SpriteFromResource("SilverJacket/Resources/StatusEffects/wet_effect"),
+                                        
+                                    };
+                                    actor.ApplyEffect(wet);
                                 }
                                 
                             }
                             else if (goopM.goopDefinition == Library.OilDef)
                             {
                                 //check for immunity
-                                if (actor.GetEffect(Module.MOD_PREFIX + "_oilcoated_immunity") == null)
+                                if (actor.GetEffect(OilCoatedTempImmunity.ID) == null)
                                 {
-                                    actor.ApplyEffect(new OilCoatedEffect { });
+                                    OilCoatedEffect oil = new OilCoatedEffect
+                                    {
+                                        AppliesTint = true,
+                                        TintColor = new Color(26 / 100, 1 / 100, 14 / 100),
+                                        effectIdentifier = OilCoatedEffect.ID,
+                                        duration = 15,
+                                        OverheadVFX = SpriteBuilder.SpriteFromResource("SilverJacket/Resources/StatusEffects/oil_coated_effect"),
+                                        
+                                    };
+                                    actor.ApplyEffect(oil);
                                 }
                     
                             }
@@ -126,18 +152,33 @@ namespace SilverJacket
                 {
                     if(actor.GetEffect("poison") != null)
                     {
-                        if (actor.GetEffect(Module.MOD_PREFIX + "_poison_fume_immunity") == null)
+                        if (actor.GetEffect(PoisonFumeTempImmunity.ID) == null)
                         {
-                            actor.ApplyEffect(new PoisonFumeTempImmunity { });
+                            actor.ApplyEffect(new PoisonFumeTempImmunity { effectIdentifier = PoisonFumeTempImmunity.ID, duration = 40 });
+                            PoisonRing.CreatePoisonCloud(actor.transform.position);
+                            List<AIActor> targets = new List<AIActor>();
+                            Action<AIActor, float> InitialTargetting = delegate (AIActor actor, float dist)
+                            {
+                                targets.Add(actor);
+                            };
+                            GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 3, InitialTargetting);
+                            foreach (AIActor a in targets)
+                            {
+                                a.ApplyEffect((PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).HealthModifierEffect);
+                            }
                         }
                     }
                     if(actor.GetEffect("freeze") != null)
                     {
-                        ExplosionData explosionData = new ExplosionData { };
-                        explosionData.CopyFrom(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultExplosionData);
-                        explosionData.damageToPlayer = 0;
-                        actor.RemoveEffect("fire");
-                        actor.RemoveEffect("freeze");
+                        if(actor.FreezeAmount > 50)
+                        {
+                            ExplosionData explosionData = new ExplosionData { };
+                            explosionData.CopyFrom(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultExplosionData);
+                            explosionData.damageToPlayer = 0;
+                            Exploder.Explode(actor.transform.position, explosionData, Vector2.zero);
+                            actor.RemoveEffect("fire");
+                            actor.RemoveEffect("freeze");
+                        }                      
                     }
                 }
             }
