@@ -32,6 +32,8 @@ namespace SilverJacket
             //where items and guns get initialised
             //ExamplePassive.Init();
             MVChemicalReactor.Init();
+            PlutoniumPlatato.Init();
+            DebugScrewdriver.Init();
             Log($"{NAME} v{VERSION} started successfully.", TEXT_COLOR);
         }
 

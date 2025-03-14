@@ -39,7 +39,9 @@
     <Compile Include="Example Code and Templates\ExamplePassive.cs" />
     <Compile Include="Example Code and Templates\GunTemplate.cs" />
     <Compile Include="Items and Guns\Passives\MVChemicalReactor.cs" />
+    <Compile Include="Items and Guns\Passives\PlutoniumPlatato.cs" />
     <Compile Include="Tools\BasicVFXCreator.cs" />
+    <Compile Include="Tools\Hooks.cs" />
     <Compile Include="Tools\Library.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -314,6 +316,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\VFX\SteamRing\steam_ring_start_001.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Actives\debug_screwdriver.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets')" />
