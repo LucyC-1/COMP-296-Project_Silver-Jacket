@@ -20,7 +20,7 @@ namespace SilverJacket
         {
             string itemName = "Plutonium Platato";
 
-            string resourceName = "SilverJacket/Resources/plutonium_platato";
+            string resourceName = "SilverJacket/Resources/Passives/plutonium_platato";
 
             GameObject obj = new GameObject(itemName);
 
@@ -33,7 +33,7 @@ namespace SilverJacket
                 "On pick up, sets a timer for a random time between 20 and 30 minutes, scaling down depending on the depth of your current floor. The timer does not start until you enter a combat room." +
                 "Once you start the timer for the first time, you cannot drop this item until there are 30 seconds or less left on the timer, at which point you will be notified. On leaving a floor the timer is stopped and it will resume again once you enter a combat room." +
                 "\n\n If the item is not dropped before the timer reaches zero, the player will be set to 1/2 a heart of health, all non-boss enemies in the room will be killed and no further waves will spawn, bosses will have their health lowered to 15% of their max hp or will be killed if they have less than 15% health left, and this item will be destroyed." +
-                "\n\n Your health will not be affected if you are immune to explosions or already at 1/2 a heart. If you are immune to poison, your current health will instead be reduced by 50%, rounding down, to 1/2 a heart at the lowest." +
+                "\n\n Your health will not be affected if you have the Blast Helmet or already at 1/2 a heart. If you are immune to poison, your current health will instead be reduced by 50%, rounding down, to 1/2 a heart at the lowest." +
                 "\n\n While held, this item will give you:" +
                 "\n - 2x Damage," +
                 "\n - 1.20x Movement Speed and Rate of Fire," +
@@ -68,54 +68,58 @@ namespace SilverJacket
 
         public override void Update()
         {
-            if(pauseTimer == false)
+            if (Owner != null)
             {
-                timeLeft -= Time.deltaTime;
-                DoTimeBoostCheck();
-                if(timeLeft <= 30 && !isMeltdownCountdownRun)
+                if (pauseTimer == false)
                 {
-                    GameManager.Instance.StartCoroutine(BeginMeltdown());
-                    this.CanBeDropped = true;
-                    this.CanBeSold = true;
+                    timeLeft -= Time.deltaTime;
+                    DoTimeBoostCheck();
+                    if (timeLeft <= 30 && !isMeltdownCountdownRun)
+                    {
+                        GameManager.Instance.StartCoroutine(BeginMeltdown());
+                        this.CanBeDropped = true;
+                        this.CanBeSold = true;
+                    }
+                    if (timeLeft <= 0)
+                    {
+                        BigBoom();
+                    }
+                    if (spawnNextProjectile)
+                    {
+                        spawnNextProjectile = false;
+                        HandleSpawnProjectile();
+                        currentCooldown = Mathf.Max(projectileCooldown * GetTimePercentageLeft(), .05f);
+                    }
+                    currentCooldown -= Time.deltaTime;
+                    if(currentCooldown <= 0)
+                    {
+                        spawnNextProjectile = true;
+                    }
+
                 }
-                if(timeLeft <= 0)
-                {
-                    BigBoom();
-                }
-                if (spawnNextProjectile)
-                {
-                    GameManager.Instance.StartCoroutine(HandleSpawnProjectile());
-                }
-                
-            }
+            }            
             base.Update();
         }
 
-        private float projectileCooldown = .25f;
+        private float projectileCooldown = .3f;
         private bool spawnNextProjectile = true;
-        private IEnumerator HandleSpawnProjectile()
+        private float currentCooldown;
+        private void HandleSpawnProjectile()
         {
-            float cooldown = projectileCooldown * GetTimePercentageLeft();
-            spawnNextProjectile = false;
             float angle = Random.Range(0, 360);
             Projectile projectile = ((Gun)ETGMod.Databases.Items[15]).DefaultModule.projectiles[0];
-            GameObject gameObject = SpawnManager.SpawnProjectile(projectile.gameObject, Owner.transform.position, Quaternion.Euler(0f, 0f, (base.Owner.CurrentGun == null) ? 0f : 0f + (angle)), true);
+            GameObject gameObject = SpawnManager.SpawnProjectile(projectile.gameObject, Owner.sprite.WorldCenter, Quaternion.Euler(0f, 0f, (angle)), true);
             Projectile component = gameObject.GetComponent<Projectile>();
             if (component != null)
             {
                 component.Owner = base.Owner;
                 component.Shooter = base.Owner.specRigidbody;
                 component.baseData.damage /= 2;
-                projectile.statusEffectsToApply.Add((PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).HealthModifierEffect);
-                projectile.AppliesPoison = true;
-                projectile.AdjustPlayerProjectileTint((PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).TintColor, (PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).TintPriority);
+                component.statusEffectsToApply.Add((PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).HealthModifierEffect);
+                component.AppliesPoison = true;
+                component.AdjustPlayerProjectileTint(Color.green, (PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).TintPriority);
+                component.baseData.range = 25;
             }
-            do
-            {
-                cooldown -= Time.deltaTime;
-            } while (cooldown > 0);
-            spawnNextProjectile = true;
-            yield break;
         }
 
         private void BigBoom()
@@ -145,21 +149,20 @@ namespace SilverJacket
             }
             RemoveStat(PlayerStats.StatType.RateOfFire);
             RemoveStat(PlayerStats.StatType.MovementSpeed);
-            bool flag = (PassiveItem.ActiveFlagItems.ContainsKey(Owner) && PassiveItem.ActiveFlagItems[Owner].ContainsKey(typeof(HelmetItem)));
-            if (!flag)
+            if (!Owner.HasPassiveItem(312))
             {
-                if (Owner.healthHaver.GetDamageModifierForType(CoreDamageTypes.Poison) >= 1)
+                if (Owner.healthHaver.GetDamageModifierForType(CoreDamageTypes.Poison) <= 0)
                 {
                     if (Owner.healthHaver.GetCurrentHealth() > .5f)
                     {
                         float half_hp = (Owner.healthHaver.GetCurrentHealth() / 2);
-                        half_hp = Mathf.Max(Mathf.Floor(half_hp), .5f);
-                        Owner.healthHaver.ForceSetCurrentHealth(half_hp);
+                        half_hp = Mathf.Max((Mathf.Ceil(half_hp) - .5f), .5f);
+                        Owner.healthHaver.ApplyDamage(half_hp, Vector2.zero, "demon_core", CoreDamageTypes.None, DamageCategory.Unstoppable, true, null, true);
                     }
                 }
                 else
                 {
-                    Owner.healthHaver.ForceSetCurrentHealth(.5f);
+                    Owner.healthHaver.ApplyDamage((Owner.healthHaver.GetCurrentHealth() - .5f), Vector2.zero, "demon_core", CoreDamageTypes.None, DamageCategory.Unstoppable, true, null, true);
                 }
             }
 
@@ -184,7 +187,11 @@ namespace SilverJacket
                 DeadlyDeadlyGoopManager deadlyDeadlyGoopManager = StaticReferenceManager.AllGoops[i];
                 deadlyDeadlyGoopManager.RemoveGoopCircle(Owner.sprite.WorldCenter, 25);
             }
+            AkSoundEngine.PostEvent("Play_PortalOpen", base.gameObject);
+            AkSoundEngine.PostEvent("Play_BOSS_spacebaby_explode_01", base.gameObject);
             StaticReferenceManager.DestroyAllEnemyProjectiles();
+            
+            
         }
 
         private bool isMeltdownCountdownRun = false;
@@ -197,16 +204,18 @@ namespace SilverJacket
             Material m = SpriteOutlineManager.GetOutlineMaterial(Owner.sprite);
             do
             {
-                glow_alpha_percent = Mathf.Lerp(glow_alpha_percent, 1, .025f);
-                m.SetColor("_OverrideColor", new Color(3 / 100, 110 / 100, 210 / 100, (glow_alpha_percent * 255) / 100));
-                if(alert_sfx_delay >= 5)
+                glow_alpha_percent = Mathf.Min(glow_alpha_percent + .01f, 255);
+                m.SetColor("_OverrideColor", new Color(3 / 50, 110 / 50, 210 / 50, (glow_alpha_percent)));
+                if(alert_sfx_delay >= 2)
                 {
-                    AkSoundEngine.PostEvent("Play_OBJ_time_bell_01", base.gameObject);
+                    AkSoundEngine.PostEvent("Play_ENM_hammer_target_01", base.gameObject);
                     alert_sfx_delay = 0;
                 }
                 elapsed += Time.deltaTime;
                 alert_sfx_delay += Time.deltaTime;
             } while (elapsed < 30);
+            Material outlineMaterial = SpriteOutlineManager.GetOutlineMaterial(Owner.sprite);
+            outlineMaterial.SetColor("_OverrideColor", new Color(0, 0, 0, 0));
             yield break;
         }
 
@@ -319,22 +328,15 @@ namespace SilverJacket
 
         public bool pauseTimer = true;
 
-        private void HandleInitialPickup()
+        private void HandleInitialPickup(PlayerController player)
         {
-            RadialSlowInterface Rad = new RadialSlowInterface
-            {
-                RadialSlowHoldTime = 5f,
-                RadialSlowOutTime = 2f,
-                RadialSlowTimeModifier = 0.2f,
-                DoesSepia = false,
-                UpdatesForNewEnemies = true,
-                audioEvent = "Play_OBJ_time_bell_01",
-            };
+            
             pauseTimer = true;
-            Rad.DoRadialSlow(Owner.transform.position, Owner.CurrentRoom);
-            TextBoxManager.ShowThoughtBubble(Owner.transform.position, Owner.transform, 10, "I should check this item's ammonomicon entry before I leave the room.", true);
+            //GameManager.Instance.StartCoroutine(TempSlowTime(player));
+            TextBoxManager.ShowInfoBox(player.sprite.WorldTopRight, player.transform, 5, "I should check this item's ammonomicon entry before I leave the room.", true);
             timeLeft = Random.Range((20f * 60f), (30f * 60f));
             float current_level_time_reduc_m = 1;
+            
             switch (GameManager.Instance.Dungeon.tileIndices.tilesetId)
             {
                 case GlobalDungeonData.ValidTilesets.CASTLEGEON:
@@ -385,16 +387,32 @@ namespace SilverJacket
             doInitialLock = true;
         }
 
+        private IEnumerator TempSlowTime(PlayerController player)
+        {
+            float elapsed = 0;
+            BraveTime.SetTimeScaleMultiplier(.25f, base.gameObject);
+            while (elapsed < 3)
+            {
+                elapsed += GameManager.INVARIANT_DELTA_TIME;
+            }
+            BraveTime.ClearMultiplier(base.gameObject);
+            yield break;
+        }
+
         private void NewLevelLoaded()
         {
             pauseTimer = false;
         }
 
+        [SerializeField]
+        private bool picked_up = false;
+
         public override void Pickup(PlayerController player)
         {
-            if (!m_pickedUpThisRun)
+            if (!picked_up)
             {
-                HandleInitialPickup();
+                picked_up = true;
+                HandleInitialPickup(player);
             }
             AddStat(PlayerStats.StatType.RateOfFire, statBonus, StatModifier.ModifyMethod.MULTIPLICATIVE);
             AddStat(PlayerStats.StatType.MovementSpeed, statBonus, StatModifier.ModifyMethod.MULTIPLICATIVE);
@@ -420,7 +438,7 @@ namespace SilverJacket
             }
             if(timeLeft <= 0)
             {
-                Destroy(this, 1);
+                Destroy(base.gameObject, 1);
             }
             return base.Drop(player);
         }
