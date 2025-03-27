@@ -18,7 +18,7 @@ namespace SilverJacket
         public const string NAME = "Silver Jacket";
         public const string VERSION = "1.0.0";
         public const string TEXT_COLOR = "#606d81";
-        public const string MOD_PREFIX = "slvjct";
+        public const string MOD_PREFIX = "slvjckt";
 
         public void Start()
         {
@@ -34,6 +34,10 @@ namespace SilverJacket
             MVChemicalReactor.Init();
             PlutoniumPlatato.Init();
             DebugScrewdriver.Init();
+            Fish.Init();
+            CascadingBullets.Init();
+            WavecrashRounds.Init();
+            IcebergShavings.Init();
             Log($"{NAME} v{VERSION} started successfully.", TEXT_COLOR);
         }
 

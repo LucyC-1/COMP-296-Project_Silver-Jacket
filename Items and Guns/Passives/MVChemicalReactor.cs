@@ -118,7 +118,7 @@ namespace SilverJacket
                                 }
                                 
                             }
-                            else if (goopM.goopDefinition == Library.OilDef)
+                            else if (goopM.goopDefinition == Library.OilDef || goopM.goopDefinition.isOily)
                             {
                                 //check for immunity
                                 if (actor.GetEffect(OilCoatedTempImmunity.ID) == null)
@@ -148,37 +148,40 @@ namespace SilverJacket
                 {
                     return;
                 }
-                if(actor.GetEffect("fire") != null)
+                if (actor.GetEffect("fire") != null)
                 {
-                    if(actor.GetEffect("poison") != null)
-                    {
-                        if (actor.GetEffect(PoisonFumeTempImmunity.ID) == null)
+                    if (!(actor.GetEffect("fire") as GameActorFireEffect).IsGreenFire) 
+                    { 
+                        if (actor.GetEffect("poison") != null)
                         {
-                            actor.ApplyEffect(new PoisonFumeTempImmunity { effectIdentifier = PoisonFumeTempImmunity.ID, duration = 40 });
-                            PoisonRing.CreatePoisonCloud(actor.transform.position);
-                            List<AIActor> targets = new List<AIActor>();
-                            Action<AIActor, float> InitialTargetting = delegate (AIActor actor, float dist)
+                            if (actor.GetEffect(PoisonFumeTempImmunity.ID) == null)
                             {
-                                targets.Add(actor);
-                            };
-                            GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 3, InitialTargetting);
-                            foreach (AIActor a in targets)
-                            {
-                                a.ApplyEffect((PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).HealthModifierEffect);
+                                actor.ApplyEffect(new PoisonFumeTempImmunity { effectIdentifier = PoisonFumeTempImmunity.ID, duration = 40 });
+                                PoisonRing.CreatePoisonCloud(actor.transform.position);
+                                List<AIActor> targets = new List<AIActor>();
+                                Action<AIActor, float> InitialTargetting = delegate (AIActor actor, float dist)
+                                {
+                                    targets.Add(actor);
+                                };
+                                GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 8, InitialTargetting);
+                                foreach (AIActor a in targets)
+                                {
+                                    a.ApplyEffect((PickupObjectDatabase.GetById(204) as BulletStatusEffectItem).HealthModifierEffect);
+                                }
                             }
                         }
-                    }
-                    if(actor.GetEffect("freeze") != null)
-                    {
-                        if(actor.FreezeAmount > 50)
+                        if (actor.GetEffect("freeze") != null)
                         {
-                            ExplosionData explosionData = new ExplosionData { };
-                            explosionData.CopyFrom(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultExplosionData);
-                            explosionData.damageToPlayer = 0;
-                            Exploder.Explode(actor.transform.position, explosionData, Vector2.zero);
-                            actor.RemoveEffect("fire");
-                            actor.RemoveEffect("freeze");
-                        }                      
+                            if (actor.FreezeAmount > 50)
+                            {
+                                ExplosionData explosionData = new ExplosionData { };
+                                explosionData.CopyFrom(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultExplosionData);
+                                explosionData.damageToPlayer = 0;
+                                Exploder.Explode(actor.transform.position, explosionData, Vector2.zero);
+                                actor.RemoveEffect("fire");
+                                actor.RemoveEffect("freeze");
+                            }
+                        }
                     }
                 }
             }

@@ -58,7 +58,7 @@ namespace SilverJacket
                     {
                         targets.Add(actor);
                     };
-                    GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 3, InitialTargetting);
+                    GameManager.Instance.PrimaryPlayer.CurrentRoom.ApplyActionToNearbyEnemies(actor.transform.position, 8, InitialTargetting);
                     foreach(AIActor a in targets)
                     {
                         GameActorSpeedEffect eff = new GameActorSpeedEffect

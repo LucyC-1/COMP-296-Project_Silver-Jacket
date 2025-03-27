@@ -38,8 +38,12 @@
     <Compile Include="Example Code and Templates\ActiveTemplate.cs" />
     <Compile Include="Example Code and Templates\ExamplePassive.cs" />
     <Compile Include="Example Code and Templates\GunTemplate.cs" />
+    <Compile Include="Items and Guns\Actives\IcebergShavings.cs" />
+    <Compile Include="Items and Guns\Passives\CascadingBullets.cs" />
+    <Compile Include="Items and Guns\Passives\Fish.cs" />
     <Compile Include="Items and Guns\Passives\MVChemicalReactor.cs" />
     <Compile Include="Items and Guns\Passives\PlutoniumPlatato.cs" />
+    <Compile Include="Items and Guns\Passives\WavecrashRounds.cs" />
     <Compile Include="Tools\BasicVFXCreator.cs" />
     <Compile Include="Tools\Hooks.cs" />
     <Compile Include="Tools\Library.cs" />
@@ -273,7 +277,6 @@
     <EmbeddedResource Include="Resources\Passives\wavecrash_rounds.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Items and Guns\Actives\" />
     <Folder Include="Items and Guns\Guns\" />
   </ItemGroup>
   <ItemGroup>
@@ -319,6 +322,13 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Actives\debug_screwdriver.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\StatusEffects\cascading_effect.png" />
+    <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_003.png" />
+    <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_004.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets')" />
