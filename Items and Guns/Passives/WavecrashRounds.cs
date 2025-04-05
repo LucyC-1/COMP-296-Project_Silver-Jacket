@@ -14,7 +14,7 @@ namespace SilverJacket
         //Call this method from the Start() method of your ETGModule extension
         public static void Init()
         {
-            WaveCrashVFX.InitVFX();
+
             //The name of the item
             string itemName = "Wavecrash Rounds";
 
@@ -72,6 +72,8 @@ namespace SilverJacket
             explosionData.doScreenShake = false;
             explosionData.damage = 8;
             explosionData.effect = Instantiate<GameObject>(WaveCrashVFX.wavecrashPrefab);
+            explosionData.ignoreList.Add(enemy);
+            enemy.healthHaver.ApplyDamage(8, Vector2.zero, Owner.name, CoreDamageTypes.Water);
             Exploder.Explode(enemy.sprite.WorldCenter, explosionData, Vector2.zero);
 
             if (Owner.HasPassiveItem(MVChemicalReactor.ID))
@@ -91,7 +93,7 @@ namespace SilverJacket
                 }
             }
 
-            AkSoundEngine.PostEvent("m_WPN_siren_shot_02", enemy.gameObject);
+            AkSoundEngine.PostEvent("Play_ENV_water_splash_01", gameObject);
         }
         
         public override DebrisObject Drop(PlayerController player)
@@ -100,31 +102,31 @@ namespace SilverJacket
             return base.Drop(player);
         }
 
-        class WaveCrashVFX : BraveBehaviour
-        {
-            public static GameObject wavecrashPrefab;
+    }
 
-            public static void InitVFX()
-            {
-                List<string> spritePaths = new List<string>
+    public class WaveCrashVFX : BraveBehaviour
+    {
+        public static GameObject wavecrashPrefab;
+
+        public static void InitVFX()
+        {
+            List<string> spritePaths = new List<string>
                 {
                     "SilverJacket/Resources/VFX/Wavecrash/wavecrash_start_001",
                     "SilverJacket/Resources/VFX/Wavecrash/wavecrash_start_002",
                     "SilverJacket/Resources/VFX/Wavecrash/wavecrash_start_003",
                     "SilverJacket/Resources/VFX/Wavecrash/wavecrash_start_004",
                 };
-                GameObject obj = BasicVFXCreator.MakeBasicVFX("wavecrash", spritePaths, 10, new IntVector2(50, 19), tk2dBaseSprite.Anchor.MiddleCenter);
-                obj.AddComponent<WaveCrashVFX>();
-                wavecrashPrefab = obj;
+            GameObject obj = BasicVFXCreator.MakeBasicVFX("wavecrash", spritePaths, 10, new IntVector2(50, 19), tk2dBaseSprite.Anchor.MiddleCenter);
+            obj.AddComponent<WaveCrashVFX>();
+            wavecrashPrefab = obj;
 
-            }
-
-            private void Start()
-            {
-                this.gameObject.SetActive(true);
-                this.gameObject.GetComponent<tk2dSpriteAnimator>().PlayAndDestroyObject("start");            
-            }
         }
 
+        private void Start()
+        {
+            this.gameObject.SetActive(true);
+            this.gameObject.GetComponent<tk2dSpriteAnimator>().PlayAndDestroyObject("start");
+        }
     }
 }

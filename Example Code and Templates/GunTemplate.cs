@@ -13,12 +13,14 @@ namespace SilverJacket
     class GunTemplate : GunBehaviour
     {
         public static string consoleID;
+        private static string spriteID;
         public static void Add()
         {
-            consoleID = $"{Module.MOD_PREFIX}: ";
+            consoleID = "";
+            spriteID = "";
             // New gun base
-            Gun gun = ETGMod.Databases.Items.NewGun(" ", " "); // First string is plain text name, second string is sprite prefix
-            Game.Items.Rename("outdated_gun_mods: ", consoleID);
+            Gun gun = ETGMod.Databases.Items.NewGun(" ", spriteID); // First string is plain text name, second string is sprite prefix
+            Game.Items.Rename("outdated_gun_mods:" + consoleID, Module.MOD_PREFIX + ":" + consoleID);
             gun.gameObject.AddComponent<GunTemplate>();
 
             //Gun descriptions
@@ -26,7 +28,7 @@ namespace SilverJacket
             gun.SetLongDescription(" ");
 
             // Sprite setup
-            gun.SetupSprite(null, "_idle_001", 20);
+            gun.SetupSprite(null, spriteID + "_idle_001", 20);
             gun.SetAnimationFPS(gun.shootAnimation, 32);
             gun.SetAnimationFPS(gun.reloadAnimation, 12);
             gun.TrimGunSprites();
@@ -37,6 +39,7 @@ namespace SilverJacket
             gun.DefaultModule.ammoCost = 1;
             gun.DefaultModule.shootStyle = ProjectileModule.ShootStyle.Automatic;
             gun.DefaultModule.sequenceStyle = ProjectileModule.ProjectileSequenceStyle.Random;
+            gun.DefaultModule.ammoType = GameUIAmmoType.AmmoType.CUSTOM;
             gun.reloadTime = 1f;
             gun.DefaultModule.cooldownTime = 0.1f;
             gun.DefaultModule.numberOfShotsInClip = 25;
@@ -48,7 +51,7 @@ namespace SilverJacket
             // Gun tuning
             gun.quality = PickupObject.ItemQuality.EXCLUDED;
             // Sound adding
-            gun.gunSwitchGroup = Module.MOD_PREFIX + "_GunName";
+            gun.gunSwitchGroup = Module.MOD_PREFIX + consoleID;
 
             SoundManager.AddCustomSwitchData("WPN_Guns", gun.gunSwitchGroup, "Play_WPN_Gun_Reload_01", "ReloadSoundYouWant");
             SoundManager.AddCustomSwitchData("WPN_Guns", gun.gunSwitchGroup, "Play_WPN_Gun_Shot_01", "ShootSoundYouWant");

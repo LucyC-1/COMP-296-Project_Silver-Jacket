@@ -38,7 +38,11 @@
     <Compile Include="Example Code and Templates\ActiveTemplate.cs" />
     <Compile Include="Example Code and Templates\ExamplePassive.cs" />
     <Compile Include="Example Code and Templates\GunTemplate.cs" />
+    <Compile Include="Items and Guns\Actives\BoneParade.cs" />
     <Compile Include="Items and Guns\Actives\IcebergShavings.cs" />
+    <Compile Include="Items and Guns\Actives\TacticalArtillery.cs" />
+    <Compile Include="Items and Guns\Guns\AGGun.cs" />
+    <Compile Include="Items and Guns\Guns\BreachFist.cs" />
     <Compile Include="Items and Guns\Passives\CascadingBullets.cs" />
     <Compile Include="Items and Guns\Passives\Fish.cs" />
     <Compile Include="Items and Guns\Passives\MVChemicalReactor.cs" />
@@ -53,6 +57,7 @@
     <Compile Include="StatusEffects\OilSlickEffect.cs" />
     <Compile Include="StatusEffects\PoisonFumeTempImmunity.cs" />
     <Compile Include="StatusEffects\WetEffect.cs" />
+    <Compile Include="Tools\OneHandedInFrontOfPlayerLayeringPatch.cs" />
     <Compile Include="VFXControllers\PoisonRing.cs" />
     <Compile Include="VFXControllers\SteamCloud.cs" />
   </ItemGroup>
@@ -277,7 +282,10 @@
     <EmbeddedResource Include="Resources\Passives\wavecrash_rounds.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Items and Guns\Guns\" />
+    <EmbeddedResource Include="Resources\VFX\BreachFistMuzzleflash\breach_fist_muzzleflash_start_001.png" />
+    <EmbeddedResource Include="Resources\VFX\BreachFistMuzzleflash\breach_fist_muzzleflash_start_002.png" />
+    <EmbeddedResource Include="Resources\VFX\BreachFistMuzzleflash\breach_fist_muzzleflash_start_003.png" />
+    <EmbeddedResource Include="Resources\VFX\BreachFistMuzzleflash\breach_fist_muzzleflash_start_004.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\StatusEffects\oil_coated_effect.png" />
@@ -324,7 +332,7 @@
     <EmbeddedResource Include="Resources\Actives\debug_screwdriver.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\StatusEffects\cascading_effect.png" />
+    <EmbeddedResource Include="Resources\StatusEffects\cascading_effect.png" />
     <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_001.png" />
     <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_002.png" />
     <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_003.png" />

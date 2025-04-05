@@ -70,7 +70,7 @@ namespace SilverJacket
             playerStepsChangeLifetime = Library.WaterGoop.playerStepsChangeLifetime,
             playerStepsLifetime = Library.WaterGoop.playerStepsLifetime,
             prefreezeColor32 = Library.WaterGoop.prefreezeColor32,
-            SpeedModifierEffect = Library.WebGoop.SpeedModifierEffect,
+            SpeedModifierEffect = Library.PlayerFriendlyWebGoop.SpeedModifierEffect,
             usesLifespan = Library.WaterGoop.usesLifespan,
             usesWaterVfx = Library.WaterGoop.usesWaterVfx,
             usesAmbientGoopFX = Library.WaterGoop.usesAmbientGoopFX,
@@ -87,7 +87,7 @@ namespace SilverJacket
             {
                 targets.Add(actor);
             };
-            room.ApplyActionToNearbyEnemies(user.sprite.WorldCenter, 8, InitialTargetting);
+            room.ApplyActionToNearbyEnemies(user.sprite.WorldCenter, 4, InitialTargetting);
             foreach(AIActor a in targets)
             {
                 a.ApplyEffect((PickupObjectDatabase.GetById(278) as BulletStatusEffectItem).FreezeModifierEffect);
@@ -100,8 +100,8 @@ namespace SilverJacket
                     a.FreezeAmount = 101;
                 }
             }
-            DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(iceygoop).TimedAddGoopCircle(user.sprite.WorldCenter, 10, 8);
-            DeadlyDeadlyGoopManager.FreezeGoopsCircle(user.sprite.WorldCenter, 10);
+            DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(iceygoop).TimedAddGoopCircle(user.sprite.WorldCenter, 5, 6);
+            DeadlyDeadlyGoopManager.FreezeGoopsCircle(user.sprite.WorldCenter, 2);
             
         }
     }

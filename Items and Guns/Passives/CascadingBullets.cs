@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace SilverJacket
 {
-    class CascadingBullets : BulletStatusEffectItem
+    class CascadingBullets : PassiveItem
     {
         public static int ID;
         public static void Init()
@@ -26,20 +26,6 @@ namespace SilverJacket
 
             ItemBuilder.SetupItem(item, shortDesc, longDesc, Module.MOD_PREFIX);
 
-            item.AppliesDamageOverTime = true;
-            item.HealthModifierEffect = new CascadingEffect
-            {
-                DamagePerSecondToEnemies = 0,
-                duration = 10,
-                AppliesTint = false,
-                AffectsEnemies = true,
-                OverheadVFX = SpriteBuilder.SpriteFromResource("SilverJacket/Resources/StatusEffects/cascading_effect"),
-                effectIdentifier = Module.MOD_PREFIX + "_cascading",
-            };
-
-            item.chanceOfActivating = .15f;
-            item.chanceFromBeamPerSecond = .3f;
-
             item.quality = PickupObject.ItemQuality.A;
             ID = item.PickupObjectId;
         }
@@ -49,7 +35,26 @@ namespace SilverJacket
         public override void Pickup(PlayerController player)
         {
             player.OnDealtDamageContext += OnDidDamage;
+            player.PostProcessProjectile += PostProcessProjectile;
             base.Pickup(player);
+        }
+
+        private void PostProcessProjectile(Projectile projectile, float eff)
+        {
+            if(UnityEngine.Random.value < .25f * eff)
+            {
+                CascadingEffect effect = new CascadingEffect
+                {
+                    DamagePerSecondToEnemies = 0,
+                    duration = 5,
+                    AppliesTint = false,
+                    AffectsEnemies = true,
+                    OverheadVFX = SpriteBuilder.SpriteFromResource("SilverJacket/Resources/StatusEffects/cascading_effect"),
+                    effectIdentifier = Module.MOD_PREFIX + "_cascading",
+                };
+                projectile.statusEffectsToApply.Add(effect);
+                projectile.AppliesPoison = true;
+            }
         }
 
         private void OnDidDamage(PlayerController player, float damage, bool fatal, HealthHaver target)
@@ -78,7 +83,7 @@ namespace SilverJacket
                                     angle = 270;
                                     break;
                             }
-                            Projectile projectile = ((Gun)ETGMod.Databases.Items[15]).DefaultModule.projectiles[0];
+                            Projectile projectile = ((Gun)ETGMod.Databases.Items[404]).DefaultModule.projectiles[0];
                             GameObject gameObject = SpawnManager.SpawnProjectile(projectile.gameObject, target.sprite.WorldCenter, Quaternion.Euler(0f, 0f, (angle)), true);
                             Projectile component = gameObject.GetComponent<Projectile>();
                             if (component != null)
@@ -88,7 +93,8 @@ namespace SilverJacket
                                 component.baseData.damage = 3;
                                 component.specRigidbody.RegisterSpecificCollisionException(target.specRigidbody);
                                 component.UpdateCollisionMask();
-                                component.baseData.range = 25;
+                                component.baseData.range *= .5f;
+                                
                             }
                         }
                         bulletsOnCooldown = true;
@@ -108,6 +114,7 @@ namespace SilverJacket
         public override DebrisObject Drop(PlayerController player)
         {
             player.OnDealtDamageContext -= OnDidDamage;
+            player.PostProcessProjectile -= PostProcessProjectile;
             if (bulletsOnCooldown)
             {
                 GameManager.Instance.StopCoroutine(DoCooldown());

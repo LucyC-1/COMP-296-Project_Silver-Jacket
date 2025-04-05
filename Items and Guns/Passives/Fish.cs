@@ -38,37 +38,40 @@ namespace SilverJacket
         private void OnRoll(PlayerController player)
         {
             GameManager.Instance.StartCoroutine(RollTimer(player.rollStats.GetModifiedTime(player), player));
-            player.sprite.renderer.enabled = false;
+            player.IsVisible = false;
             this.CanBeDropped = false;
         }
 
         private void Rolling(PlayerController player)
         {
-            DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(Library.WaterGoop).TimedAddGoopCircle(player.sprite.WorldCenter, 1f);
+            DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(Library.WaterGoop).TimedAddGoopCircle(player.sprite.WorldBottomCenter, 1.3f, .25f);
         }
 
         private IEnumerator RollTimer(float rollTime, PlayerController player)
         {
             yield return new WaitForSeconds(rollTime);
             // do end of roll effect
-
+            player.IsVisible = true;
             List<AIActor> targets = new List<AIActor>();
             Action<AIActor, float> InitialTargetting = delegate (AIActor actor, float dist)
             {
                 targets.Add(actor);
             };
-            player.CurrentRoom.ApplyActionToNearbyEnemies(player.sprite.WorldCenter, 2.5f, InitialTargetting);
-            foreach (AIActor a in targets)
+            player.CurrentRoom.ApplyActionToNearbyEnemies(player.sprite.WorldCenter, 3f, InitialTargetting);
+            if (targets.Any())
             {
-                a.healthHaver.ApplyDamage(5f, Vector2.zero, "splash", CoreDamageTypes.Water);
-                a.knockbackDoer.ApplyKnockback((a.sprite.WorldCenter - player.sprite.WorldCenter), 10);
+                foreach (AIActor a in targets)
+                {
+                    a.healthHaver.ApplyDamage(5f, Vector2.zero, "splash", CoreDamageTypes.Water);
+                    a.knockbackDoer.ApplyKnockback((a.sprite.WorldCenter - player.sprite.WorldCenter), 8);
+                }
             }
-            GameObject obj = Instantiate<GameObject>((PickupObjectDatabase.GetById(359) as Gun).Volley.projectiles[0].chargeProjectiles[0].Projectile.hitEffects.enemy.effects[1].effects[0].effect);
-            obj.GetComponent<tk2dBaseSprite>().PlaceAtLocalPositionByAnchor(Owner.sprite.WorldCenter, tk2dBaseSprite.Anchor.UpperRight);
-            obj.transform.position = Owner.sprite.WorldCenter.Quantize(0.0625f);
-            obj.GetComponent<tk2dBaseSprite>().UpdateZDepth();
-            //AkSoundEngine.PostEvent("Play_OBJ_cauldron_splash_01", base.gameObject);
-            player.sprite.renderer.enabled = true;
+            GameObject obj = Instantiate<GameObject>(WaveCrashVFX.wavecrashPrefab);
+            obj.transform.position = player.sprite.WorldBottomCenter;
+            obj.SetActive(true);
+            AkSoundEngine.PostEvent("Play_WPN_eyeballgun_impact_01", player.gameObject);
+            //player.sprite.renderer.enabled = true;
+            
             this.CanBeDropped = true;
             yield break;
         }

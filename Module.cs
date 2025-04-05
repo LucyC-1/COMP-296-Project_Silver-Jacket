@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using HarmonyLib;
 
 namespace SilverJacket
 {
@@ -27,17 +28,36 @@ namespace SilverJacket
 
         public void GMStart(GameManager g)
         {
+
+            var harmony = new Harmony(GUID);
+            harmony.PatchAll();
+
             Library.DefineGoops();
             Library.InitVFX();
             //where items and guns get initialised
             //ExamplePassive.Init();
+
+            // Passives -----
+
             MVChemicalReactor.Init();
             PlutoniumPlatato.Init();
             DebugScrewdriver.Init();
             Fish.Init();
             CascadingBullets.Init();
             WavecrashRounds.Init();
+
+            // Actives -----
+
             IcebergShavings.Init();
+            BoneParade.Init();
+            TacticalArtillery.Init();
+
+            // Guns -----
+
+            AGGun.Add();
+            BreachFist.Add();
+
+
             Log($"{NAME} v{VERSION} started successfully.", TEXT_COLOR);
         }
 
