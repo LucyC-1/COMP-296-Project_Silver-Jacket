@@ -43,6 +43,11 @@
     <Compile Include="Items and Guns\Actives\TacticalArtillery.cs" />
     <Compile Include="Items and Guns\Guns\AGGun.cs" />
     <Compile Include="Items and Guns\Guns\BreachFist.cs" />
+    <Compile Include="Items and Guns\Guns\DollArm.cs" />
+    <Compile Include="Items and Guns\Guns\FerrymanOar.cs" />
+    <Compile Include="Items and Guns\Guns\HFBladeLightning.cs" />
+    <Compile Include="Items and Guns\Guns\HookAndGut.cs" />
+    <Compile Include="Items and Guns\Guns\TheRightAngle.cs" />
     <Compile Include="Items and Guns\Passives\CascadingBullets.cs" />
     <Compile Include="Items and Guns\Passives\Fish.cs" />
     <Compile Include="Items and Guns\Passives\MVChemicalReactor.cs" />
@@ -58,6 +63,7 @@
     <Compile Include="StatusEffects\PoisonFumeTempImmunity.cs" />
     <Compile Include="StatusEffects\WetEffect.cs" />
     <Compile Include="Tools\OneHandedInFrontOfPlayerLayeringPatch.cs" />
+    <Compile Include="Tools\ProjectileSlashing.cs" />
     <Compile Include="VFXControllers\PoisonRing.cs" />
     <Compile Include="VFXControllers\SteamCloud.cs" />
   </ItemGroup>
@@ -337,6 +343,22 @@
     <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_002.png" />
     <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_003.png" />
     <EmbeddedResource Include="Resources\VFX\Wavecrash\wavecrash_start_004.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VFX\Slashes\HFBladeLightning\lightning_slash_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\HFBladeLightning\lightning_slash_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\HFBladeLightning\lightning_slash_003.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\HFBladeLightning\lightning_slash_004.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Actives\electrolyte_pack.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_003.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_004.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets')" />

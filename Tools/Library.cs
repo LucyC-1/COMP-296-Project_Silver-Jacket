@@ -98,7 +98,7 @@ namespace SilverJacket
             SteamCloud.Init();
             PoisonRing.Init();
             WaveCrashVFX.InitVFX();
-            BreachFistMuzzleFlash.Init();
+            //BreachFistMuzzleFlash.Init();
         }
         public static List<T> ConstructListOfSameValues<T>(T value, int length)
         {

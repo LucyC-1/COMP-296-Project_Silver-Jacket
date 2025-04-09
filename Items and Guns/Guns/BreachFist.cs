@@ -40,8 +40,7 @@ namespace SilverJacket
 
             // Projectile setup
             gun.AddProjectileModuleFrom(PickupObjectDatabase.GetById(15) as Gun, true, false);
-            gun.muzzleFlashEffects = (PickupObjectDatabase.GetById(157) as Gun).muzzleFlashEffects;
-            gun.muzzleFlashEffects.effects[0].effects[0].effect = Instantiate<GameObject>(BreachFistMuzzleFlash.breachMuzzleflashPrefab);
+            gun.muzzleFlashEffects.type = VFXPoolType.None;
 
             gun.DefaultModule.ammoCost = 1;
             gun.DefaultModule.shootStyle = ProjectileModule.ShootStyle.Charged;
@@ -50,11 +49,12 @@ namespace SilverJacket
             gun.reloadTime = 2f;
             gun.gunHandedness = GunHandedness.HiddenOneHanded;
             gun.DefaultModule.cooldownTime = .5f;
-            gun.DefaultModule.numberOfShotsInClip = 5;
+            gun.DefaultModule.numberOfShotsInClip = 2;
             gun.DefaultModule.angleVariance = 0f;
             gun.SetBaseMaxAmmo(150);
             gun.gunClass = GunClass.CHARGE;
-            gun.barrelOffset.transform.localPosition += new Vector3(19f / 16f, 3f / 16f, 0);
+            gun.carryPixelOffset += new IntVector2(0, 2);
+            gun.barrelOffset.transform.localPosition += new Vector3(50f / 16f, 3f / 16f, 0);
 
             // Gun tuning
             gun.quality = PickupObject.ItemQuality.B;
@@ -67,58 +67,49 @@ namespace SilverJacket
             //Adding projectile to gun
             Projectile projectile = UnityEngine.Object.Instantiate<Projectile>(gun.DefaultModule.projectiles[0]);
             projectile.gameObject.SetActive(false);
+            BreachExplosionDoer breachExplosion = projectile.gameObject.AddComponent<BreachExplosionDoer>();
+            
             FakePrefab.MarkAsFakePrefab(projectile.gameObject);
             UnityEngine.Object.DontDestroyOnLoad(projectile);
-            gun.DefaultModule.chargeProjectiles = new List<ProjectileModule.ChargeProjectile>
+
+            ProjectileModule.ChargeProjectile chargeProjectile = new ProjectileModule.ChargeProjectile
             {
-                new ProjectileModule.ChargeProjectile
-                {
-                    Projectile = projectile,
-                    ChargeTime = .8f,
-                },
+                Projectile = projectile,
+                ChargeTime = .8f,
             };
-            gun.DefaultModule.projectiles[0] = projectile;
+
+            gun.DefaultModule.chargeProjectiles = new List<ProjectileModule.ChargeProjectile>();
+            gun.DefaultModule.chargeProjectiles.Add(chargeProjectile);
 
             // More projectile setup
-            projectile.baseData.damage = 30f;
+            projectile.baseData.damage = 35f;
             projectile.baseData.speed = 26f;
             projectile.baseData.range = 30f;
             projectile.baseData.force = 8f;
             projectile.transform.parent = gun.barrelOffset;
-
-            gun.gameObject.AddComponent<BreachExplosionOffsetHandler>();
 
             ETGMod.Databases.Items.Add(gun, false, "ANY");
             ID = gun.PickupObjectId;
         }
         public static int ID;
 
-        public override void PostProcessProjectile(Projectile projectile)
+        class BreachExplosionDoer : MonoBehaviour
         {
-            projectile.sprite.renderer.enabled = false;
-            
-            Vector3 pos = gun.barrelOffset.position;
-            ExplosionData explosion = new ExplosionData { };
-            explosion.CopyFrom(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultSmallExplosionData);
-            explosion.damage = projectile.baseData.damage;
-            explosion.damageToPlayer = 0;
-            explosion.preventPlayerForce = true;           
-            Exploder.Explode(gun.GetComponent<BreachExplosionOffsetHandler>().point.position, explosion, Vector2.zero);
-
-
-            Destroy(projectile);
-        }
-
-        class BreachExplosionOffsetHandler : MonoBehaviour
-        {
-            private void Start()
+            private void Awake()
             {
-                point.parent = gameObject.GetComponent<Gun>().barrelOffset;
-                point.localPosition = gameObject.GetComponent<Gun>().barrelOffset.transform.localPosition + new Vector3(1f, 0);
+                Projectile projectile = gameObject.GetComponent<Projectile>();
+
+                ExplosionData explosion = new ExplosionData { };
+                explosion.CopyFrom(GameManager.Instance.Dungeon.sharedSettingsPrefab.DefaultExplosionData);
+                explosion.damage = projectile.ModifiedDamage;
+                explosion.damageToPlayer = 0;
+                explosion.preventPlayerForce = true;
+                Exploder.Explode(projectile.sprite.WorldCenter, explosion, Vector2.zero);
+
+                projectile.DieInAir(true);
             }
-            [SerializeField]
-            public Transform point;
         }
+
     }
 
     class BreachFistMuzzleFlash : MonoBehaviour

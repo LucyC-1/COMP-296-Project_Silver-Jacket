@@ -41,7 +41,6 @@ namespace SilverJacket
 
             MVChemicalReactor.Init();
             PlutoniumPlatato.Init();
-            DebugScrewdriver.Init();
             Fish.Init();
             CascadingBullets.Init();
             WavecrashRounds.Init();
@@ -56,7 +55,17 @@ namespace SilverJacket
 
             AGGun.Add();
             BreachFist.Add();
+            FerrymanOar.Add();
+            HFBladeLightning.Add();
+            HookAndGut.Add();
+            DollArm.Add();
+            //make The Ripper 
+            TheRightAngle.Add();
 
+            // Debug Items -----
+
+            DebugScrewdriver.Init();
+            ElectrolytePack.Init();
 
             Log($"{NAME} v{VERSION} started successfully.", TEXT_COLOR);
         }
