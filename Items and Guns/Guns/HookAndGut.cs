@@ -15,10 +15,13 @@ namespace SilverJacket
 {
     class HookAndGut : GunBehaviour
     {
+        public static int encounterTimes;
         public static string consoleID;
         private static string spriteID;
 
-        private static SlashData slash;
+        private static GameObject vfxPrefab;
+
+        public static ItemStats stats = new ItemStats();
 
         public static void Add()
         {
@@ -80,16 +83,7 @@ namespace SilverJacket
             projectile.baseData.speed = 40f;
             projectile.baseData.force = 20f;
             projectile.transform.parent = gun.barrelOffset;
-
-            SlashData data = new SlashData { };
-            data.damage = 0;
-            data.damagesBreakables = true;
-            data.doVFX = true;
-            data.doHitVFX = false;
-            data.enemyKnockbackForce = 0;
-            data.playerKnockbackForce = 0;
-            data.projInteractMode = SlashDoer.ProjInteractMode.IGNORE;
-            
+  
 
             List<string> spritePaths = new List<string>
             {
@@ -99,16 +93,15 @@ namespace SilverJacket
                 "SilverJacket/Resources/VFX/Slashes/HookAndGut/hook_and_gut_slash_004",
             };
 
-            VFXPool gutSlashVFX = VFXBuilder.CreateVFXPool(Module.MOD_PREFIX + "_" + spriteID + "_slash", spritePaths, 12, new IntVector2(15, 25), tk2dBaseSprite.Anchor.MiddleCenter, true, .1f);
+            GameObject g = new GameObject { };
+            g = BasicVFXCreator.MakeBasicVFX(Module.MOD_PREFIX + "_" + spriteID + "_slash", spritePaths, 12, new IntVector2(15, 25), tk2dBaseSprite.Anchor.MiddleCenter);
+            vfxPrefab = g;
 
-            data.VFX = gutSlashVFX;
-
-            slash = data;
-
-            projectile.SetProjectileSpriteRight("hook_projectile", 17, 7, true);
+            projectile.SetProjectileSpriteRight("hook_projectile_2", 8, 7, true);
 
             ETGMod.Databases.Items.Add(gun, false, "ANY");
             ID = gun.PickupObjectId;
+            stats.name = gun.EncounterNameOrDisplayName;
         }
 
         private bool hooking = false;
@@ -123,6 +116,14 @@ namespace SilverJacket
 
             if (hookedActors.Any())
             {
+                foreach(AIActor a in hookedActors)
+                {
+                    if (a.gameObject.GetComponent<ChainToEnemy>())
+                    {
+                        a.gameObject.GetComponent<ChainToEnemy>().DestroyChain();
+                        Destroy(a.gameObject.GetComponent<ChainToEnemy>());
+                    }
+                }
                 hookedActors.Clear();
             }
 
@@ -149,7 +150,6 @@ namespace SilverJacket
         }
         public override void OnReloadedPlayer(PlayerController owner, Gun gun)
         {
-            ETGModConsole.Log(hookedActors.Count);
             List<AIActor> actorsToGut = new List<AIActor> { };
             foreach (AIActor a in hookedActors)
             {
@@ -174,9 +174,15 @@ namespace SilverJacket
                         
                         if (healthPercent <= .2f || a.healthHaver.GetCurrentHealth() <= (15 * owner.stats.GetStatValue(PlayerStats.StatType.Damage)))
                         {
-                            a.behaviorSpeculator.ImmuneToStun = false;
-                            a.behaviorSpeculator.Stun(100, true);
-                            a.aiShooter.CeaseAttack();
+                            if(a.behaviorSpeculator != null)
+                            {
+                                a.behaviorSpeculator.ImmuneToStun = false;
+                                a.behaviorSpeculator.Stun(100, true);
+                            }
+                            if (a.aiShooter != null)
+                            {
+                                a.aiShooter.CeaseAttack();
+                            }
                             a.MovementSpeed = 0;
                             actorsToGut.Add(a);
                         }
@@ -187,7 +193,11 @@ namespace SilverJacket
                             GoopDefinition bloodGoop = (PickupObjectDatabase.GetById(272) as IronCoinItem).BloodDefinition;
                             bloodGoop.eternal = false;
                             DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(bloodGoop).TimedAddGoopCircle(a.sprite.WorldCenter,1.2f, .3f);
-                            a.knockbackDoer.ApplyKnockback(owner.sprite.WorldCenter - a.sprite.WorldCenter, 15);
+                            if (a.knockbackDoer != null)
+                            {
+                                a.knockbackDoer.ApplyKnockback(owner.sprite.WorldCenter - a.sprite.WorldCenter, 15);
+                            }
+                            
                             SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(692) as Gun).DefaultModule.projectiles[0].hitEffects.enemy.effects[0].effects[0].effect, a.sprite.WorldCenter, new Quaternion(0, 0, 0, 0));
 
                         }
@@ -239,7 +249,7 @@ namespace SilverJacket
 
             yield return new WaitForSeconds(1f);
 
-            SlashDoer.DoSwordSlash(player.CurrentGun.barrelOffset.position, player.CurrentGun.CurrentAngle, player.gameActor, slash);
+            SpawnManager.SpawnVFX(vfxPrefab, player.CurrentGun.barrelOffset.position, Quaternion.Euler(0, 0, player.CurrentGun.CurrentAngle));
 
             foreach (AIActor a in actorsToGut)
             {
@@ -297,6 +307,13 @@ namespace SilverJacket
                 a.gameObject.GetComponent<ChainToEnemy>().DestroyChain();
                 Destroy(a.gameObject.GetComponent<ChainToEnemy>());
             }
+        }
+
+        public override void OnPlayerPickup(PlayerController playerOwner)
+        {
+            stats.encounterAmount++;
+            Module.UpdateStatList();
+            base.OnPlayerPickup(playerOwner);
         }
 
         class ChainProjectileToPlayer : MonoBehaviour

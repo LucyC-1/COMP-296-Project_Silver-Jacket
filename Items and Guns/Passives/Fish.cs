@@ -10,7 +10,10 @@ namespace SilverJacket
 {
     class Fish : PassiveItem
     {
+        public static int encounterTimes;
         public static int ID;
+
+        public static ItemStats stats = new ItemStats();
 
         public static void Init()
         {
@@ -33,6 +36,7 @@ namespace SilverJacket
 
             item.quality = PickupObject.ItemQuality.D;
             ID = item.PickupObjectId;
+            stats.name = item.EncounterNameOrDisplayName;
         }
 
         private void OnRoll(PlayerController player)
@@ -80,6 +84,11 @@ namespace SilverJacket
         {
             player.OnIsRolling += Rolling;
             player.OnPreDodgeRoll += OnRoll;
+            if (!m_pickedUpThisRun)
+            {
+                stats.encounterAmount++;
+                Module.UpdateStatList();
+            }
             base.Pickup(player);
         }
 

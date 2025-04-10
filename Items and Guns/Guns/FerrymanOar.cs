@@ -13,8 +13,11 @@ namespace SilverJacket
 {
     class FerrymanOar : GunBehaviour
     {
+        public static int encounterTimes;
         public static string consoleID;
         private static string spriteID;
+
+        public static ItemStats stats = new ItemStats();
         public static void Add()
         {
             consoleID = "ferryman_oar";
@@ -102,7 +105,16 @@ namespace SilverJacket
 
             ETGMod.Databases.Items.Add(gun, false, "ANY");
             ID = gun.PickupObjectId;
+            stats.name = gun.EncounterNameOrDisplayName;
         }
+
+        public override void OnPlayerPickup(PlayerController playerOwner)
+        {
+            stats.encounterAmount++;
+            Module.UpdateStatList();
+            base.OnPlayerPickup(playerOwner);
+        }
+
         public override void OnPostFired(PlayerController player, Gun gun)
         {
             

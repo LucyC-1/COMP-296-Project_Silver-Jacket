@@ -10,8 +10,12 @@ namespace SilverJacket
 {
     class HFBladeLightning : GunBehaviour
     {
+        public static int encounterTimes;
         public static string consoleID;
         private static string spriteID;
+
+        public static ItemStats stats = new ItemStats();
+
         public static void Add()
         {
             consoleID = "hf_blade_lightning";
@@ -50,7 +54,7 @@ namespace SilverJacket
             gun.DefaultModule.ammoType = GameUIAmmoType.AmmoType.CUSTOM;
             gun.DefaultModule.customAmmoType = "pulse blue";
             gun.reloadTime = 1f;
-            gun.DefaultModule.cooldownTime = .4f;
+            gun.DefaultModule.cooldownTime = .25f;
             gun.DefaultModule.triggerCooldownForAnyChargeAmount = true;
             gun.DefaultModule.numberOfShotsInClip = 1;
             gun.DefaultModule.angleVariance = 0f;
@@ -68,7 +72,7 @@ namespace SilverJacket
            // SoundManager.AddCustomSwitchData("WPN_Guns", gun.gunSwitchGroup, "Play_WPN_Gun_Shot_01", new SwitchedEvent("Play_WPN_Gun_Shot_01", "WPN_Guns", "Thor"));
 
             GameObject obj = new GameObject();
-            obj.transform.SetParent(gun.barrelOffset.transform);
+            obj.transform.SetParent(gun.transform);
             obj.transform.localPosition = gun.barrelOffset.transform.localPosition += new Vector3(12f / 16f, 4f / 16f);
 
             //Adding projectile to gun
@@ -83,7 +87,7 @@ namespace SilverJacket
             projectile.transform.parent = obj.transform;
 
             ProjectileIDMarker marker1 = projectile.gameObject.AddComponent<ProjectileIDMarker>();
-            marker1.ID = "hf_noharge";
+            marker1.ID = "hf_nocharge";
 
             ProjectileSlashingBehaviourForked behaviour1 = projectile.gameObject.AddComponent<ProjectileSlashingBehaviourForked>();
             behaviour1.SlashDamageUsesBaseProjectileDamage = true;
@@ -146,13 +150,14 @@ namespace SilverJacket
 
             ETGMod.Databases.Items.Add(gun, false, "ANY");
             ID = gun.PickupObjectId;
+
+            stats.name = gun.EncounterNameOrDisplayName;
         }
 
         public bool canDoRipper = false;
 
         private bool isRipperMode = false;
 
-        [SerializeField]
         public int kills = 0;
 
         public override void PostProcessProjectile(Projectile projectile)
@@ -386,7 +391,12 @@ namespace SilverJacket
             return BraveInput.GetInstanceForPlayer(user.PlayerIDX).ActiveActions.GetActionFromType(action).IsPressed;
         }
 
-        
+        public override void OnPlayerPickup(PlayerController playerOwner)
+        {
+            stats.encounterAmount++;
+            Module.UpdateStatList();
+            base.OnPlayerPickup(playerOwner);
+        }
 
         class BloodDripFromSword : MonoBehaviour
         {

@@ -6,7 +6,10 @@ namespace SilverJacket
 {
     class CascadingBullets : PassiveItem
     {
+        public static int encounterTimes;
         public static int ID;
+
+        public static ItemStats stats = new ItemStats();
         public static void Init()
         {
 
@@ -28,6 +31,7 @@ namespace SilverJacket
 
             item.quality = PickupObject.ItemQuality.A;
             ID = item.PickupObjectId;
+            stats.name = item.EncounterNameOrDisplayName;
         }
 
         private bool bulletsOnCooldown = false;
@@ -36,6 +40,11 @@ namespace SilverJacket
         {
             player.OnDealtDamageContext += OnDidDamage;
             player.PostProcessProjectile += PostProcessProjectile;
+            if (!m_pickedUpThisRun)
+            {
+                stats.encounterAmount++;
+                Module.UpdateStatList();
+            }
             base.Pickup(player);
         }
 

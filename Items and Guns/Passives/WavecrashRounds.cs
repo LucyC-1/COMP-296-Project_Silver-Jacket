@@ -10,6 +10,10 @@ namespace SilverJacket
 {
     class WavecrashRounds : PassiveItem
     {
+        public static int encounterTimes;
+
+        public static ItemStats stats = new ItemStats();
+
         public static int ID;
         //Call this method from the Start() method of your ETGModule extension
         public static void Init()
@@ -43,6 +47,7 @@ namespace SilverJacket
             item.quality = PickupObject.ItemQuality.B;
             
             ID = item.PickupObjectId;
+            stats.name = item.EncounterNameOrDisplayName;
         }
 
         
@@ -51,6 +56,11 @@ namespace SilverJacket
         public override void Pickup(PlayerController player)
         {
             player.PostProcessProjectile += PostProcessProjectile;
+            if (!m_pickedUpThisRun)
+            {
+                stats.encounterAmount++;
+                Module.UpdateStatList();
+            }
             base.Pickup(player);
         }
 

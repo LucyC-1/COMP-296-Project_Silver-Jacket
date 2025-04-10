@@ -12,8 +12,12 @@ namespace SilverJacket
 {
     class TheRightAngle : GunBehaviour
     {
+        public static int encounterTimes;
         public static string consoleID;
         private static string spriteID;
+
+        public static ItemStats stats = new ItemStats();
+
         public static void Add()
         {
             consoleID = "the_right_angle";
@@ -45,6 +49,7 @@ namespace SilverJacket
             gun.DefaultModule.cooldownTime = 0.14f;
             gun.DefaultModule.numberOfShotsInClip = 25;
             gun.DefaultModule.angleVariance = 6f;
+            gun.DefaultModule.angleFromAim = -90;
             gun.SetBaseMaxAmmo(450);
             gun.gunClass = GunClass.RIFLE;
 
@@ -63,47 +68,27 @@ namespace SilverJacket
             UnityEngine.Object.DontDestroyOnLoad(projectile);
             gun.DefaultModule.projectiles[0] = projectile;
 
-            projectile.baseData.range = 18;
-            projectile.SuppressHitEffects = true;
-            projectile.m_renderer.enabled = false;
-            ProjectileIDMarker marker = projectile.gameObject.AddComponent<ProjectileIDMarker>();
-            marker.ID = "right_angle_orig";
 
             // More projectile setup
             projectile.transform.parent = gun.barrelOffset;
 
             ETGMod.Databases.Items.Add(gun, false, "ANY");
             ID = gun.PickupObjectId;
+            stats.name = gun.EncounterNameOrDisplayName;
         }
         public static int ID;
 
-        public override void PostProcessProjectile(Projectile projectile)
-        {
-            if(projectile.GetComponent<ProjectileIDMarker>() != null)
-            {
-                if(projectile.GetComponent<ProjectileIDMarker>().ID == "right_angle_orig")
-                {
-                    Destroy(projectile);
-                }
-            }
-        }
 
         public override void OnPostFired(PlayerController player, Gun gun)
-        {
-            GameObject gameObject = SpawnManager.SpawnProjectile((PickupObjectDatabase.GetById(15) as Gun).DefaultModule.projectiles[0].gameObject, gun.barrelOffset.position, Quaternion.Euler(0f, 0f, (gun.CurrentAngle - 90)), true);
-            Projectile component = gameObject.GetComponent<Projectile>();
-            if (component != null)
-            {
-                component.Owner = player;
-                component.Shooter = player.specRigidbody;
-                component.baseData.speed *= player.stats.GetStatValue(PlayerStats.StatType.ProjectileSpeed);
-                component.baseData.force *= player.stats.GetStatValue(PlayerStats.StatType.KnockbackMultiplier);
-                component.baseData.damage *= player.stats.GetStatValue(PlayerStats.StatType.Damage);
-
-                player.DoPostProcessProjectile(component);
-
-            }
+        {          
             SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(15) as Gun).muzzleFlashEffects.effects[0].effects[0].effect, gun.barrelOffset.position, Quaternion.Euler(0f, 0f, (gun.CurrentAngle - 90)));
+        }
+
+        public override void OnPlayerPickup(PlayerController playerOwner)
+        {
+            stats.encounterAmount++;
+            Module.UpdateStatList();
+            base.OnPlayerPickup(playerOwner);
         }
 
 

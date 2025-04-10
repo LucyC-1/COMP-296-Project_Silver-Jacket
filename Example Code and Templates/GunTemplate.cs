@@ -7,6 +7,7 @@ using Alexandria.ItemAPI;
 using BepInEx;
 using Alexandria.SoundAPI;
 using Alexandria.BreakableAPI;
+using System.Collections.Generic;
 
 namespace SilverJacket
 {

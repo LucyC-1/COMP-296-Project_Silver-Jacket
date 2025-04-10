@@ -9,7 +9,10 @@ namespace SilverJacket
 {
     class MVChemicalReactor : PassiveItem
     {
+        public static int encounterTimes;
         public static int ID;
+
+        public static ItemStats stats = new ItemStats();
         public static void Init()
         {
             string itemName = "MV Chemical Reactor";
@@ -40,6 +43,7 @@ namespace SilverJacket
             //Set the rarity of the item
             item.quality = PickupObject.ItemQuality.C;
             ID = item.PickupObjectId;
+            stats.name = item.EncounterNameOrDisplayName;
         }
 
         private void OnActorStart(AIActor actor)
@@ -51,6 +55,11 @@ namespace SilverJacket
         public override void Pickup(PlayerController player)
         {
             ETGMod.AIActor.OnPreStart += OnActorStart;
+            if (!m_pickedUpThisRun)
+            {
+                stats.encounterAmount++;
+                Module.UpdateStatList();
+            }
             base.Pickup(player);
         }
 

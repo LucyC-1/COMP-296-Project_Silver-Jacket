@@ -13,8 +13,12 @@ namespace SilverJacket
 {
     class BreachFist : GunBehaviour
     {
+        public static int encounterTimes;
         public static string consoleID;
         private static string spriteID;
+
+        public static ItemStats stats = new ItemStats();
+
         public static void Add()
         {
             consoleID = "breach_fist";
@@ -90,8 +94,17 @@ namespace SilverJacket
 
             ETGMod.Databases.Items.Add(gun, false, "ANY");
             ID = gun.PickupObjectId;
+
+            stats.name = gun.EncounterNameOrDisplayName;
         }
         public static int ID;
+
+        public override void OnPlayerPickup(PlayerController playerOwner)
+        {
+            stats.encounterAmount++;
+            Module.UpdateStatList();
+            base.OnPlayerPickup(playerOwner);
+        }
 
         class BreachExplosionDoer : MonoBehaviour
         {

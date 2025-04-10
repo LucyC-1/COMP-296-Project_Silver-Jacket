@@ -7,6 +7,11 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using HarmonyLib;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
+using System.IO;
+
 
 namespace SilverJacket
 {
@@ -20,6 +25,9 @@ namespace SilverJacket
         public const string VERSION = "1.0.0";
         public const string TEXT_COLOR = "#606d81";
         public const string MOD_PREFIX = "slvjckt";
+        public static string filePath;
+
+        public static List<ItemStats> itemStatList = new List<ItemStats> { };
 
         public void Start()
         {
@@ -34,6 +42,13 @@ namespace SilverJacket
 
             Library.DefineGoops();
             Library.InitVFX();
+
+            filePath = this.FolderPath();
+
+            ETGModConsole.Commands.AddGroup(MOD_PREFIX, args =>
+            {
+            });
+
             //where items and guns get initialised
             //ExamplePassive.Init();
 
@@ -45,11 +60,20 @@ namespace SilverJacket
             CascadingBullets.Init();
             WavecrashRounds.Init();
 
+            itemStatList.Add(MVChemicalReactor.stats);
+            itemStatList.Add(PlutoniumPlatato.stats);
+            itemStatList.Add(Fish.stats);
+            itemStatList.Add(WavecrashRounds.stats);
+
             // Actives -----
 
             IcebergShavings.Init();
             BoneParade.Init();
             TacticalArtillery.Init();
+
+            itemStatList.Add(IcebergShavings.stats);
+            itemStatList.Add(BoneParade.stats);
+            itemStatList.Add(TacticalArtillery.stats);
 
             // Guns -----
 
@@ -59,20 +83,95 @@ namespace SilverJacket
             HFBladeLightning.Add();
             HookAndGut.Add();
             DollArm.Add();
-            //make The Ripper 
+            Ripper.Add();
             TheRightAngle.Add();
 
+            itemStatList.Add(AGGun.stats);
+            itemStatList.Add(BreachFist.stats);
+            itemStatList.Add(FerrymanOar.stats);
+            itemStatList.Add(HFBladeLightning.stats);
+            itemStatList.Add(HookAndGut.stats);
+            itemStatList.Add(DollArm.stats);
+            itemStatList.Add(Ripper.stats);
+            itemStatList.Add(TheRightAngle.stats);
+
+            GetStats();
             // Debug Items -----
 
             DebugScrewdriver.Init();
             ElectrolytePack.Init();
 
+            ETGModConsole.Commands.GetGroup(MOD_PREFIX).AddUnit("read_stats", PrintStats);
+
             Log($"{NAME} v{VERSION} started successfully.", TEXT_COLOR);
         }
+
+
+        public static JObject UpdateStatList()
+        {
+            string path = Path.Combine(ETGMod.ResourcesDirectory, "../SilverJacketData/");
+            string file = Path.Combine(path, "ItemStats.json");
+            JObject data = new JObject();
+            foreach (ItemStats stat in itemStatList)
+            {
+                data.Add(stat.name, stat.encounterAmount);
+            }
+            File.WriteAllText(file, data.ToString());
+            return data;
+        }
+
+        private void PrintStats(string[] args)
+        {
+            ETGModConsole.Log("Stats: ");
+            ETGModConsole.Log("----------------");
+            ETGModConsole.Log(ReadStats().ToString());         
+            ETGModConsole.Log("----------------");
+        }
+
+        private static JObject ReadStats()
+        {
+            JObject data = new JObject();
+            
+            string path = Path.Combine(ETGMod.ResourcesDirectory, "../SilverJacketData/");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            string file = Path.Combine(path, "ItemStats.json");
+            if (!File.Exists(file))
+            {
+                JObject initData = UpdateStatList();
+            }
+            data = JObject.Parse(File.ReadAllText(file));
+            return data;
+        }
+
+        private void GetStats()
+        {
+            JObject data = ReadStats();
+            foreach(ItemStats stat in itemStatList)
+            {
+                stat.encounterAmount = data.GetValue(stat.name).Value<int>();
+            }
+        }
+
+        
 
         public static void Log(string text, string color="#FFFFFF")
         {
             ETGModConsole.Log($"<color={color}>{text}</color>");
         }
+
+    }
+
+    public class ItemStats
+    {
+        public ItemStats()
+        {
+            encounterAmount = 0;
+            name = "";
+        }
+        public int encounterAmount = 0;
+        public string name = "";
     }
 }

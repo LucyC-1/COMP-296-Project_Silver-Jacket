@@ -47,6 +47,7 @@
     <Compile Include="Items and Guns\Guns\FerrymanOar.cs" />
     <Compile Include="Items and Guns\Guns\HFBladeLightning.cs" />
     <Compile Include="Items and Guns\Guns\HookAndGut.cs" />
+    <Compile Include="Items and Guns\Guns\Ripper.cs" />
     <Compile Include="Items and Guns\Guns\TheRightAngle.cs" />
     <Compile Include="Items and Guns\Passives\CascadingBullets.cs" />
     <Compile Include="Items and Guns\Passives\Fish.cs" />
@@ -353,12 +354,34 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Actives\electrolyte_pack.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_cut_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_cut_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_cut_003.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab_003.png" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_001.png" />
     <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_002.png" />
     <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_003.png" />
     <EmbeddedResource Include="Resources\VFX\Slashes\HookAndGut\hook_and_gut_slash_004.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_slash_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_slash_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_slash_003.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_cut2_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_cut2_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_cut2_003.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab2_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab2_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab2_003.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets')" />

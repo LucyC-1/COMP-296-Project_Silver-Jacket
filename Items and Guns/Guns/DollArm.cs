@@ -14,9 +14,11 @@ namespace SilverJacket
 {
     class DollArm : GunBehaviour
     {
+        public static int encounterTimes;
         public static string consoleID;
         private static string spriteID;
 
+        public static ItemStats stats = new ItemStats();
 
         public static void Add()
         {
@@ -79,6 +81,8 @@ namespace SilverJacket
 
             ETGMod.Databases.Items.Add(gun, false, "ANY");
             ID = gun.PickupObjectId;
+
+            stats.name = gun.EncounterNameOrDisplayName;
         }
         public static int ID;
 
@@ -101,7 +105,7 @@ namespace SilverJacket
             ProjectileSlashingBehaviour behaviour = proj.AddComponent<ProjectileSlashingBehaviour>();
             behaviour.slashParameters.projInteractMode = SlashDoer.ProjInteractMode.DESTROY;
             behaviour.slashParameters.damage = 0;
-            behaviour.slashParameters.enemyKnockbackForce = 0;
+            behaviour.slashParameters.enemyKnockbackForce = 40;
             behaviour.slashParameters.playerKnockbackForce = 0;
             behaviour.slashParameters.soundEvent = "";
             behaviour.slashParameters.OnHitBullet += OnHitBullet;
@@ -122,6 +126,13 @@ namespace SilverJacket
             {
                 extraDamage = true;
             }
+        }
+
+        public override void OnPlayerPickup(PlayerController playerOwner)
+        {
+            stats.encounterAmount++;
+            Module.UpdateStatList();
+            base.OnPlayerPickup(playerOwner);
         }
     }
 }

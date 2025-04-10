@@ -9,7 +9,11 @@ namespace SilverJacket
 {
     class BoneParade : PlayerItem
     {
+        public static int encounterTimes;
         public static int ID;
+
+        public static ItemStats stats = new ItemStats();
+
         public static void Init()
         {
             string itemName = "Bone Parade";
@@ -33,6 +37,8 @@ namespace SilverJacket
             item.quality = ItemQuality.A;
             item.sprite.IsPerpendicular = true;
             ID = item.PickupObjectId;
+
+            stats.name = item.EncounterNameOrDisplayName;
 
             boneProjectilePrefab = UnityEngine.Object.Instantiate<Projectile>(((Gun)ETGMod.Databases.Items[15]).DefaultModule.projectiles[0]);
             boneProjectilePrefab.gameObject.SetActive(false);
@@ -79,6 +85,16 @@ namespace SilverJacket
                 component.UpdateCollisionMask();
                 angle += 36;
             }
+        }
+
+        public override void Pickup(PlayerController player)
+        {
+            if (!m_pickedUpThisRun)
+            {
+                stats.encounterAmount++;
+                Module.UpdateStatList();
+            }
+            base.Pickup(player);
         }
 
 

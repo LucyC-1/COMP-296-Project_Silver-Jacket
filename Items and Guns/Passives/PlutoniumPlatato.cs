@@ -14,7 +14,10 @@ namespace SilverJacket
 {
     class PlutoniumPlatato : PassiveItem
     {
+        public static int encounterTimes;
         public static int ID;
+
+        public static ItemStats stats = new ItemStats();
 
         public static void Init()
         {
@@ -45,6 +48,7 @@ namespace SilverJacket
 
             item.quality = PickupObject.ItemQuality.B;
             ID = item.PickupObjectId;
+            stats.name = item.EncounterNameOrDisplayName;
         }
         [SerializeField]
         public float timeLeft;
@@ -409,6 +413,11 @@ namespace SilverJacket
 
         public override void Pickup(PlayerController player)
         {
+            if (!m_pickedUpThisRun)
+            {
+                stats.encounterAmount++;
+                Module.UpdateStatList();
+            }
             if (!picked_up)
             {
                 picked_up = true;

@@ -12,7 +12,11 @@ namespace SilverJacket
 {
     class TacticalArtillery : PlayerItem
     {
+        public static int encounterTimes;
         public static int ID;
+
+        public static ItemStats stats = new ItemStats();
+
         public static void Init()
         {
             string itemName = "Tactical Artillery";
@@ -38,14 +42,20 @@ namespace SilverJacket
             item.sprite.IsPerpendicular = true;
 
             ID = item.PickupObjectId;
+            stats.name = item.EncounterNameOrDisplayName;
         }
 
        
 
         public override void Pickup(PlayerController player)
         {
+            if (!m_pickedUpThisRun)
+            {
+                stats.encounterAmount++;
+                Module.UpdateStatList();
+            }
             base.Pickup(player);
-           
+            
         }
 
         public override void DoEffect(PlayerController user)
