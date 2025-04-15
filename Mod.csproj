@@ -47,6 +47,8 @@
     <Compile Include="Items and Guns\Guns\FerrymanOar.cs" />
     <Compile Include="Items and Guns\Guns\HFBladeLightning.cs" />
     <Compile Include="Items and Guns\Guns\HookAndGut.cs" />
+    <Compile Include="Items and Guns\Guns\PunishingCross\PunishingCrossMG.cs" />
+    <Compile Include="Items and Guns\Guns\PunishingCross\PunishingCrossRPG.cs" />
     <Compile Include="Items and Guns\Guns\Ripper.cs" />
     <Compile Include="Items and Guns\Guns\TheRightAngle.cs" />
     <Compile Include="Items and Guns\Passives\CascadingBullets.cs" />
@@ -382,6 +384,12 @@
     <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab2_001.png" />
     <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab2_002.png" />
     <EmbeddedResource Include="Resources\VFX\Slashes\Ripper\ripper_stab2_003.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\VFX\Slashes\Cross\cross_slash_001.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Cross\cross_slash_002.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Cross\cross_slash_003.png" />
+    <EmbeddedResource Include="Resources\VFX\Slashes\Cross\cross_slash_004.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.21\build\BepInEx.Core.targets')" />

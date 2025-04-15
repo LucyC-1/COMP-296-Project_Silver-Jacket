@@ -22,7 +22,7 @@ namespace SilverJacket
     {
         public const string GUID = "lucyc.etg.silverjacket";
         public const string NAME = "Silver Jacket";
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.1.0";
         public const string TEXT_COLOR = "#606d81";
         public const string MOD_PREFIX = "slvjckt";
         public static string filePath;
@@ -85,6 +85,8 @@ namespace SilverJacket
             DollArm.Add();
             Ripper.Add();
             TheRightAngle.Add();
+            PunishingCrossMG.Add();
+            PunishingCrossRPG.Add();
 
             itemStatList.Add(AGGun.stats);
             itemStatList.Add(BreachFist.stats);
@@ -96,6 +98,9 @@ namespace SilverJacket
             itemStatList.Add(TheRightAngle.stats);
 
             GetStats();
+
+            GunTransformationManager.InitialiseIDs();
+
             // Debug Items -----
 
             DebugScrewdriver.Init();
