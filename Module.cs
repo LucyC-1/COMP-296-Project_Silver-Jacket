@@ -22,7 +22,7 @@ namespace SilverJacket
     {
         public const string GUID = "lucyc.etg.silverjacket";
         public const string NAME = "Silver Jacket";
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.1.1";
         public const string TEXT_COLOR = "#606d81";
         public const string MOD_PREFIX = "slvjckt";
         public static string filePath;

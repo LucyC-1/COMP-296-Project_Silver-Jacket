@@ -157,62 +157,70 @@ namespace SilverJacket
                 {
                     a.gameObject.GetComponent<ChainToEnemy>().DestroyChain();
                 }
-                if (!a.healthHaver.IsDead)
+                if (a.healthHaver != null)
                 {
-                    if (a.healthHaver.IsBoss || a.healthHaver.IsSubboss)
+                    if (!a.healthHaver.IsDead)
                     {
-                        a.healthHaver.ApplyDamage(15 * owner.stats.GetStatValue(PlayerStats.StatType.Damage), Vector2.zero, owner.ActorName, CoreDamageTypes.None, DamageCategory.Normal);
-                        AkSoundEngine.PostEvent("Play_BOSS_blobulord_burst_01", gameObject);
-                        GoopDefinition bloodGoop = (PickupObjectDatabase.GetById(272) as IronCoinItem).BloodDefinition;
-                        DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(bloodGoop).TimedAddGoopCircle(a.sprite.WorldCenter, 1.2f, .3f);
-                        SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(692) as Gun).DefaultModule.projectiles[0].hitEffects.enemy.effects[0].effects[0].effect, a.sprite.WorldCenter, new Quaternion(0, 0, 0, 0));
-
-                    }
-                    else
-                    {
-                        float healthPercent = a.healthHaver.GetCurrentHealthPercentage();
-                        
-                        if (healthPercent <= .2f || a.healthHaver.GetCurrentHealth() <= (15 * owner.stats.GetStatValue(PlayerStats.StatType.Damage)))
-                        {
-                            if(a.behaviorSpeculator != null)
-                            {
-                                a.behaviorSpeculator.ImmuneToStun = false;
-                                a.behaviorSpeculator.Stun(100, true);
-                            }
-                            if (a.aiShooter != null)
-                            {
-                                a.aiShooter.CeaseAttack();
-                            }
-                            a.MovementSpeed = 0;
-                            actorsToGut.Add(a);
-                        }
-                        else
+                        if (a.healthHaver.IsBoss || a.healthHaver.IsSubboss)
                         {
                             a.healthHaver.ApplyDamage(15 * owner.stats.GetStatValue(PlayerStats.StatType.Damage), Vector2.zero, owner.ActorName, CoreDamageTypes.None, DamageCategory.Normal);
                             AkSoundEngine.PostEvent("Play_BOSS_blobulord_burst_01", gameObject);
                             GoopDefinition bloodGoop = (PickupObjectDatabase.GetById(272) as IronCoinItem).BloodDefinition;
-                            bloodGoop.eternal = false;
-                            DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(bloodGoop).TimedAddGoopCircle(a.sprite.WorldCenter,1.2f, .3f);
-                            if (a.knockbackDoer != null)
-                            {
-                                a.knockbackDoer.ApplyKnockback(owner.sprite.WorldCenter - a.sprite.WorldCenter, 15);
-                            }
-                            
-                            SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(692) as Gun).DefaultModule.projectiles[0].hitEffects.enemy.effects[0].effects[0].effect, a.sprite.WorldCenter, new Quaternion(0, 0, 0, 0));
+                            DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(bloodGoop).TimedAddGoopCircle(a.sprite.WorldCenter, 1.2f, .3f);
+                            //SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(692) as Gun).DefaultModule.projectiles[0].hitEffects.enemy.effects[0].effects[0].effect, a.sprite.WorldCenter, new Quaternion(0, 0, 0, 0));
 
                         }
+                        else
+                        {
+                            float healthPercent = a.healthHaver.GetCurrentHealthPercentage();
+
+                            if (healthPercent <= .2f || a.healthHaver.GetCurrentHealth() <= (15 * owner.stats.GetStatValue(PlayerStats.StatType.Damage)))
+                            {
+                                if (a.behaviorSpeculator != null)
+                                {
+                                    a.behaviorSpeculator.ImmuneToStun = false;
+                                    a.behaviorSpeculator.Stun(100, true);
+                                }
+                                if (a.aiShooter != null)
+                                {
+                                    a.aiShooter.CeaseAttack();
+                                }
+                                a.MovementSpeed = 0;
+                                actorsToGut.Add(a);
+                            }
+                            else
+                            {
+                                a.healthHaver.ApplyDamage(15 * owner.stats.GetStatValue(PlayerStats.StatType.Damage), Vector2.zero, owner.ActorName, CoreDamageTypes.None, DamageCategory.Normal);
+                                AkSoundEngine.PostEvent("Play_BOSS_blobulord_burst_01", gameObject);
+                                GoopDefinition bloodGoop = (PickupObjectDatabase.GetById(272) as IronCoinItem).BloodDefinition;
+                                bloodGoop.eternal = false;
+                                DeadlyDeadlyGoopManager.GetGoopManagerForGoopType(bloodGoop).TimedAddGoopCircle(a.sprite.WorldCenter, 1.2f, .3f);
+                                if (a.knockbackDoer != null)
+                                {
+                                    a.knockbackDoer.ApplyKnockback(owner.sprite.WorldCenter - a.sprite.WorldCenter, 15);
+                                }
+
+                                //SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(692) as Gun).DefaultModule.projectiles[0].hitEffects.enemy.effects[0].effects[0].effect, a.sprite.WorldCenter, new Quaternion(0, 0, 0, 0));
+
+                            }
+                        }
+                    }
+                    if (a.gameObject.GetComponent<ChainToEnemy>())
+                    {
+                        Destroy(a.gameObject.GetComponent<ChainToEnemy>());
                     }
                 }
-                if (a.gameObject.GetComponent<ChainToEnemy>())
-                {
-                    Destroy(a.gameObject.GetComponent<ChainToEnemy>());
-                }
+                
             }
             if(actorsToGut.Any())
             {
                 GameManager.Instance.StartCoroutine(GutEnemies(actorsToGut, owner));
             }
-            hookedActors.Clear();
+            if (hookedActors.Any())
+            {
+                hookedActors.Clear();
+            }
+            
         }
 
         private IEnumerator MakePlayerInvincible(PlayerController player)
@@ -254,8 +262,9 @@ namespace SilverJacket
             foreach (AIActor a in actorsToGut)
             {
                 a.healthHaver.ApplyDamage(a.healthHaver.AdjustedMaxHealth, Vector2.zero, "gutted", CoreDamageTypes.None, DamageCategory.Unstoppable, true, null, true);
-                SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(692) as Gun).DefaultModule.projectiles[0].hitEffects.enemy.effects[0].effects[0].effect, a.sprite.WorldCenter, Quaternion.Euler(0, 0, 0)); 
+                //SpawnManager.SpawnVFX((PickupObjectDatabase.GetById(692) as Gun).DefaultModule.projectiles[0].hitEffects.enemy.effects[0].effects[0].effect, a.sprite.WorldCenter, Quaternion.Euler(0, 0, 0)); 
             }
+            hooking = false;
             ClearHook(player);
             yield break;
         }
@@ -264,7 +273,7 @@ namespace SilverJacket
         {
             gun.CanBeDropped = true;
             gun.CanBeSold = true;
-
+            hooking = false;
             player.inventory.GunLocked.SetOverride("hook_and_gut", false);
             player.ClearInputOverride("hook_and_gut");
 
